@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Worker Login - Nearva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center min-h-screen px-4 py-10">
+
+    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+        <div class="text-center">
+            <a href="/" class="inline-block mb-6">
+                <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
+                    class="h-12 w-auto mx-auto" alt="Nearva Logo">
+            </a>
+            <h2 class="text-3xl font-extrabold text-gray-900">Worker Login</h2>
+            <p class="mt-2 text-sm text-gray-600">Enter your phone number to manage your status.</p>
+        </div>
+
+        <form id="login-form" class="mt-8 space-y-6">
+            <input type="hidden" name="remember" value="true">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div class="mb-4">
+                    <label for="phone" class="sr-only">Phone Number</label>
+                    <input id="phone" name="phone" type="tel" required inputmode="numeric" pattern="[0-9]*"
+                        autocomplete="tel"
+                        class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Phone Number (e.g., 9876543210)">
+                </div>
+                <div>
+                    <label for="password" class="sr-only">Password</label>
+                    <input id="password" name="password" type="password" required
+                        class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Password">
+                </div>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
+                    Login
+                </button>
+            </div>
+
+            <div class="mt-6 text-center space-y-2">
+                <a href="/register" class="text-sm text-blue-600 hover:text-blue-800 font-medium block">
+                    Don't have an account? Register here
+                </a>
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-700 block">
+                    ← Back to Home
+                </a>
+            </div>
+            <p id="error-msg" class="text-red-500 text-center text-sm hidden"></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value;
+            const btn = document.querySelector('button');
+            const errorMsg = document.getElementById('error-msg');
+
+            btn.disabled = true;
+            btn.textContent = "Checking...";
+            errorMsg.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('phone', phone);
+            formData.append('password', document.getElementById('password').value);
+
+            try {
+                const response = await fetch('/api/worker/login', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    localStorage.setItem('nearva_worker_id', data.worker.id);
+                    localStorage.setItem('nearva_worker_name', data.worker.name);
+                    localStorage.setItem('nearva_worker_status', data.worker.status);
+                    window.location.href = '/worker/dashboard';
+                } else {
+                    errorMsg.textContent = data.message || "Login failed";
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.textContent = "Connection error. Please try again.";
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Login";
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,386 @@
+html {
+    scroll-behavior: smooth;
+    height: 100%;
+}
+
+/* Tamil Font Support */
+html[lang="ta"] body,
+.tamil-mode {
+    font-family: 'Noto Sans Tamil', 'Inter', sans-serif !important;
+}
+
+:root {
+    --primary: #2563eb;
+    --secondary: #16a34a;
+    --dark: #1f2937;
+    --light: #F8FAFC;
+    --white: #ffffff;
+    --radius: 16px;
+}
+
+/* Safe Area Utilities */
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.p-safe {
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 0px);
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animations */
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translate3d(20px, 0, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-6px) rotate(2deg);
+    }
+
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.group:hover .group-hover\:animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+/* 144Hz Performance & Smoothness Essentials */
+.gpu-accelerated {
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
+}
+
+.smooth-transition {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.transform-gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Global Hardware Acceleration Layer */
+.gpu-heavy-layer {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Glassmorphism */
+.glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Map specific tweaks - REVERTING some popup overrides to allow default markers */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+}
+
+.marker-hit-area {
+    pointer-events: auto !important;
+}
+
+/* Background Overlay for Modal Experience */
+#sheet-overlay {
+    transition: opacity 0.2s ease-out;
+    will-change: opacity;
+}
+
+#sheet-overlay.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    display: block !important;
+}
+
+/* Hardware Accelerated Layers */
+.glass,
+.cat-chip,
+#worker-profile-sheet,
+.user-location-marker,
+.worker-marker-container,
+.hero-video {
+    will-change: transform, opacity;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Production-Grade Bottom Sheet Styles */
+#worker-profile-sheet {
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background: #ffffff !important;
+    border-top: 1px solid #f1f5f9;
+    will-change: transform;
+    touch-action: pan-y;
+}
+
+#worker-profile-sheet.open {
+    transform: translateY(0) translateZ(0) !important;
+}
+
+/* Desktop Version: Centered Card */
+@media (min-width: 768px) {
+    #worker-profile-sheet {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        bottom: auto !important;
+        transform: translate(-50%, -20%) scale(0.9) !important;
+        opacity: 0;
+        border-radius: 16px !important;
+        max-width: 380px !important;
+        max-height: 80vh !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    #worker-profile-sheet.open {
+        transform: translate(-50%, -50%) scale(1) translateZ(0) !important;
+        opacity: 1 !important;
+    }
+}
+
+.custom-popup-card .leaflet-popup-content {
+    margin: 0 !important;
+}
+
+.custom-popup-card .leaflet-popup-tip {
+    box-shadow: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.33);
+        opacity: 0.8;
+    }
+
+    80%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes green-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+.green-pulse-anim {
+    animation: green-pulse 2s infinite;
+}
+
+@keyframes bounce-subtle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.animate-bounce-subtle {
+    animation: bounce-subtle 3s ease-in-out infinite;
+}
+
+.radial-pulse-anim {
+    animation: pulse-ring 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+/* Base Body Fixes for Mobile Layout */
+body {
+    min-height: 100vh;
+    /* Changed from hidden to auto to restore scrolling */
+    width: 100vw;
+    -webkit-font-smoothing: antialiased;
+    background: #F8FAFC;
+    position: relative;
+}
+
+/* Extra Smooth Improvements */
+input,
+button,
+a,
+[role="button"],
+.marker-hit-area {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* Removes 300ms click delay */
+}
+
+/* Hover-only effects for Desktop to avoid sticky mobile states */
+@media (hover: hover) {
+
+    .cat-chip:hover,
+    .btn:hover,
+    a:hover,
+    button:hover {
+        transform: translateY(-2px) translateZ(0);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+
+* {
+    -webkit-touch-callout: none;
+}
+
+/* Form focus ring animation */
+input:focus,
+select:focus,
+textarea:focus {
+    transition: all 0.2s ease-in-out;
+    transform: translateY(-1px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Tamil Responsive Typography */
+.tamil-mode h1 {
+    font-size: 2.125rem !important;
+    /* Mobile: text-4xl approx, slightly reduced */
+    line-height: 1.4 !important;
+    letter-spacing: normal !important;
+    word-break: keep-all;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+@media (min-width: 640px) {
+    .tamil-mode h1 {
+        font-size: 3rem !important;
+        /* Tablet (sm): text-5xl equivalent */
+    }
+}
+
+@media (min-width: 768px) {
+    .tamil-mode h1 {
+        font-size: 4.5rem !important;
+        /* Desktop (md): text-7xl equivalent */
+        line-height: 1.25 !important;
+    }
+}
+
+.tamil-mode .hero-sub {
+    line-height: 1.6 !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+}

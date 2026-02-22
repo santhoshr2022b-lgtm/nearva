@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard - Nearva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
+    <style>
+        .pulse-active {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 px-6 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <a href="/" class="flex items-center group">
+                <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
+                    class="h-8 w-auto md:h-10 transition-transform group-hover:scale-105" alt="Nearva Logo">
+            </a>
+            <div class="h-6 w-[1px] bg-gray-200"></div>
+            <h1 class="text-lg font-bold text-gray-800">Worker Panel</h1>
+        </div>
+        <button onclick="logout()"
+            class="text-sm text-red-500 font-medium hover:text-red-600 transition">Logout</button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-6 space-y-8">
+
+        <div class="text-center">
+            <h2 class="text-2xl font-bold text-gray-900" id="worker-name">Welcome</h2>
+            <p class="text-gray-500 text-sm mt-1">Manage your availability directly.</p>
+        </div>
+
+        <!-- Approval Status Messages (Pending/Rejected) -->
+        <div id="pending-message" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 max-w-md rounded-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <span class="text-3xl">⏳</span>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Account Under Review</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Your account is under review. Please wait for admin approval.</p>
+                        <p class="mt-2 text-xs">You will be able to access the dashboard once approved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="rejected-message" class="hidden bg-red-50 border-l-4 border-red-400 p-4 max-w-md rounded-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <span class="text-3xl">❌</span>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Registration Not Approved</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>Your registration was not approved. Please contact support for more information.</p>
+                        <p class="mt-2 text-xs">Email: support@nearva.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Card (Only for Approved Workers) -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm text-center transform transition-all duration-300 border border-gray-100"
+            id="status-card">
+
+            <div class="text-center mb-8">
+                <!-- Status Icon -->
+                <div id="status-indicator"
+                    class="w-24 h-24 rounded-full mx-auto flex items-center justify-center mb-4 transition-all duration-500 bg-gray-100 border-4 border-gray-200 shadow-inner">
+                    <span class="text-4xl filter grayscale opacity-50 transition-all duration-500"
+                        id="status-icon">😴</span>
+                </div>
+
+                <!-- Status Text -->
+                <h2 id="status-text" class="text-xl font-bold mb-1 text-gray-800 transition-colors">You are Offline</h2>
+                <p id="status-desc" class="text-sm text-gray-500">You are hidden from the map.</p>
+            </div>
+
+            <!-- Toggle Switch for State Selection -->
+            <div class="mb-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                <label class="block text-sm font-semibold text-gray-700 mb-4">Select Status:</label>
+                <div class="flex gap-4 justify-center">
+                    <!-- Offline Option -->
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="worker-status" value="Offline" id="radio-offline" class="peer sr-only"
+                            checked>
+                        <div
+                            class="py-4 px-6 text-center rounded-xl border-2 border-gray-300 bg-white peer-checked:border-gray-600 peer-checked:bg-gray-100 peer-checked:shadow-md transition-all">
+                            <div class="text-2xl mb-1">😴</div>
+                            <div class="text-sm font-bold text-gray-800">Offline</div>
+                        </div>
+                    </label>
+
+                    <!-- Online Option -->
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="worker-status" value="Available" id="radio-online"
+                            class="peer sr-only">
+                        <div
+                            class="py-4 px-6 text-center rounded-xl border-2 border-gray-300 bg-white peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:shadow-md transition-all">
+                            <div class="text-2xl mb-1">📡</div>
+                            <div class="text-sm font-bold text-gray-800">Online</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <button id="save-btn" onclick="applyStatusChange()" disabled
+                class="w-full py-6 rounded-2xl text-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-xl transition-all flex items-center justify-center gap-3 ring-4 ring-blue-200 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:ring-gray-300 disabled:opacity-50">
+                <span id="save-btn-text">Save Changes</span>
+                <span class="text-2xl" id="save-btn-icon">💾</span>
+            </button>
+            <p class="text-xs text-gray-500 text-center mt-2" id="save-hint">Syncing with database...</p>
+        </div>
+
+        <!-- GPS Info -->
+        <div class="bg-white rounded-xl shadow p-4 w-full max-w-sm hidden" id="gps-info">
+            <p class="text-xs text-gray-400 font-mono mb-1 tracking-wider uppercase">Live Tracking</p>
+            <div class="flex justify-between items-center">
+                <span class="flex items-center text-sm font-bold text-green-600 gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    Active
+                </span>
+                <span class="text-xs text-gray-400 font-medium" id="update-time">Just now</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-2 truncate bg-gray-50 p-2 rounded border border-gray-100" id="coords">
+                Waiting for coordinates...</p>
+        </div>
+
+        <!-- GPS Error Container -->
+        <div id="gps-error" class="hidden w-full max-w-sm"></div>
+
+    </main>
+
+    <!-- Global Loading Overlay -->
+    <div id="loading-overlay"
+        class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-blue-600 font-bold">Updating Status...</p>
+    </div>
+
+    <script>
+        // Check Login
+        const workerId = localStorage.getItem('nearva_worker_id');
+        if (!workerId) window.location.href = '/worker/login';
+
+        // State Manager
+        const state = {
+            isLive: false,
+            watchId: null,
+            heartbeatId: null,
+            isUpdating: false
+        };
+
+        function toggleLoading(show) {
+            state.isUpdating = show;
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+            document.getElementById('save-btn').disabled = show;
+        }
+
+        async function logout() {
+            stopGPS();
+            localStorage.clear();
+            window.location.href = '/api/worker/logout';
+        }
+
+        function detectChange() {
+            if (state.isUpdating) return;
+            const wantsOnline = document.getElementById('radio-online').checked;
+            const saveBtn = document.getElementById('save-btn');
+            const saveHint = document.getElementById('save-hint');
+
+            if (wantsOnline !== state.isLive) {
+                saveBtn.disabled = false;
+                saveHint.textContent = `Click Save to go ${wantsOnline ? 'Online' : 'Offline'}`;
+                saveHint.className = "text-xs text-blue-600 font-bold text-center mt-2";
+            } else {
+                saveBtn.disabled = true;
+                saveHint.textContent = 'No changes to save';
+                saveHint.className = "text-xs text-gray-500 text-center mt-2";
+            }
+        }
+
+        async function applyStatusChange() {
+            if (state.isUpdating) return;
+            const wantsOnline = document.getElementById('radio-online').checked;
+
+            if (wantsOnline) {
+                requestGPSAndGoLive();
+            } else {
+                updateStatus('offline');
+            }
+        }
+
+        function requestGPSAndGoLive() {
+            if (!navigator.geolocation) {
+                alert("GPS not supported");
+                return;
+            }
+
+            toggleLoading(true);
+            navigator.geolocation.getCurrentPosition(
+                (pos) => updateStatus('online', pos.coords.latitude, pos.coords.longitude),
+                (err) => {
+                    toggleLoading(false);
+                    alert("Location access required to go online. Please enable GPS.");
+                    updateUI(false);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        async function updateStatus(targetStatus, lat = null, lng = null) {
+            toggleLoading(true);
+            try {
+                const response = await fetch('/api/worker/status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: targetStatus,
+                        latitude: lat,
+                        longitude: lng
+                    })
+                });
+
+                if (!response.ok) throw new Error("Sync failed");
+
+                state.isLive = (targetStatus === 'online');
+                updateUI(state.isLive);
+
+                if (state.isLive) {
+                    startGPSWatch();
+                } else {
+                    stopGPS();
+                }
+            } catch (err) {
+                alert("Network error: Status not updated. Try again.");
+                console.error(err);
+                updateUI(state.isLive);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function startGPSWatch() {
+            stopGPS(); // Clean up if any
+            state.watchId = navigator.geolocation.watchPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    updateGPSUI(latitude, longitude);
+                    // Silently update location via POST
+                    const fd = new FormData();
+                    fd.append('id', workerId);
+                    fd.append('latitude', latitude);
+                    fd.append('longitude', longitude);
+                    fd.append('availability', 'Available');
+                    fetch('/api/worker/update', { method: 'POST', body: fd }).catch(() => { });
+                },
+                null,
+                { enableHighAccuracy: true, maximumAge: 0 }
+            );
+
+            state.heartbeatId = setInterval(() => {
+                const fd = new FormData();
+                fd.append('id', workerId);
+                fd.append('availability', 'Available');
+                fetch('/api/worker/update', { method: 'POST', body: fd }).catch(() => { });
+            }, 20000);
+        }
+
+        function stopGPS() {
+            if (state.watchId) navigator.geolocation.clearWatch(state.watchId);
+            if (state.heartbeatId) clearInterval(state.heartbeatId);
+            state.watchId = null;
+            state.heartbeatId = null;
+        }
+
+        function updateGPSUI(lat, lng) {
+            document.getElementById('coords').textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            document.getElementById('update-time').textContent = new Date().toLocaleTimeString();
+        }
+
+        function updateUI(live) {
+            const indicator = document.getElementById('status-indicator');
+            const icon = document.getElementById('status-icon');
+            const text = document.getElementById('status-text');
+            const desc = document.getElementById('status-desc');
+            const gpsPanel = document.getElementById('gps-info');
+            const radioOnline = document.getElementById('radio-online');
+            const radioOffline = document.getElementById('radio-offline');
+
+            if (live) {
+                indicator.className = "w-24 h-24 rounded-full mx-auto flex items-center justify-center mb-4 bg-green-50 border-4 border-green-100 shadow-md transition-all duration-500";
+                icon.innerHTML = '📡';
+                icon.className = "text-4xl animate-pulse";
+                text.textContent = "You are LIVE";
+                text.className = "text-xl font-bold mb-1 text-green-600";
+                desc.textContent = "Customers can see you on the map.";
+                radioOnline.checked = true;
+                gpsPanel.classList.remove('hidden');
+            } else {
+                indicator.className = "w-24 h-24 rounded-full mx-auto flex items-center justify-center mb-4 bg-gray-100 border-4 border-gray-200 shadow-inner transition-all duration-500";
+                icon.innerHTML = '😴';
+                icon.className = "text-4xl opacity-50 grayscale";
+                text.textContent = "You are Offline";
+                text.className = "text-xl font-bold mb-1 text-gray-800";
+                desc.textContent = "You are hidden from results.";
+                radioOffline.checked = true;
+                gpsPanel.classList.add('hidden');
+            }
+            detectChange();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('worker-name').textContent = 'Welcome, ' + (localStorage.getItem('nearva_worker_name') || 'Worker');
+
+            fetch(`/api/worker/status/${workerId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const { account_status, status } = data.worker;
+
+                        if (account_status !== 'Approved') {
+                            document.getElementById('status-card').classList.add('hidden');
+                            document.getElementById(account_status.toLowerCase() + '-message').classList.remove('hidden');
+                            return;
+                        }
+
+                        state.isLive = (status === 'online');
+                        updateUI(state.isLive);
+                        if (state.isLive) startGPSWatch();
+                    }
+                });
+
+            document.getElementById('radio-online').addEventListener('change', detectChange);
+            document.getElementById('radio-offline').addEventListener('change', detectChange);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | Nearva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
+    <style>
+        /* Tamil Font Support */
+        html[lang="ta"] body,
+        .tamil-mode {
+            font-family: 'Noto Sans Tamil', 'Inter', sans-serif !important;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <nav class="bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center">
+                <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
+                    class="h-10 md:h-12 w-auto transition-transform hover:scale-105 object-contain" alt="Nearva Logo">
+            </a>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleLanguage()" id="lang-display"
+                    class="text-sm font-bold text-blue-600 border border-blue-100 px-3 py-1 rounded-lg hover:bg-blue-50 transition-all">
+                    EN | தமிழ்
+                </button>
+                <a href="/" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition"
+                    data-en="Back to Home" data-ta="முகப்பிற்கு">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container max-w-3xl mx-auto px-6 py-12">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2" data-en="Terms of Service" data-ta="சேவை விதிமுறைகள்">Terms of
+            Service</h1>
+        <p class="text-sm text-gray-500 mb-8" data-en="Last updated: January 2026"
+            data-ta="கடைசியாக புதுப்பிக்கப்பட்டது: ஜனவரி 2026">Last updated: January 2026</p>
+
+        <p class="text-gray-700 mb-6" data-en="By using Nearva, you agree to the following terms:"
+            data-ta="நேர்வாவைப் பயன்படுத்துவதன் மூலம், பின்வரும் விதிமுறைகளை நீங்கள் ஒப்புக்கொள்கிறீர்கள்:">By using
+            Nearva, you agree to the following terms:</p>
+
+        <div class="space-y-6 text-gray-700">
+            <ol class="list-decimal pl-5 space-y-4 marker:font-bold marker:text-gray-900">
+                <li>
+                    <strong data-en="Platform Role:" data-ta="தளத்தின் பங்கு:">Platform Role:</strong>
+                    <span data-en="Nearva acts as a platform to connect customers and workers."
+                        data-ta="நேர்வா வாடிக்கையாளர்களையும் பணியாளர்களையும் இணைப்பதற்கான ஒரு தளமாக செயல்படுகிறது.">Nearva
+                        acts as a platform to connect customers and workers.</span>
+                </li>
+                <li>
+                    <strong data-en="No Operational Guarantee:" data-ta="செயல்பாட்டு உத்தரவாதம் இல்லை:">No Operational
+                        Guarantee:</strong>
+                    <span data-en="Nearva does not guarantee service quality or outcomes."
+                        data-ta="நேர்வா சேவை தரம் அல்லது முடிவுகளுக்கு உத்தரவாதம் அளிக்காது.">Nearva does not guarantee
+                        service quality or outcomes.</span>
+                </li>
+                <li>
+                    <strong data-en="User Responsibility:" data-ta="பயனர் பொறுப்பு:">User Responsibility:</strong>
+                    <span data-en="Users are responsible for verifying worker details before hiring."
+                        data-ta="பணியாளர்களை வேலைக்கு அமர்த்துவதற்கு முன் அவர்களின் விவரங்களைச் சரிபார்க்கும் பொறுப்பு பயனர்களுடையது.">Users
+                        are responsible for verifying worker details before hiring.</span>
+                </li>
+                <li>
+                    <strong data-en="Worker Liability:" data-ta="பணியாளரின் பொறுப்பு:">Worker Liability:</strong>
+                    <span data-en="Workers are responsible for the services they provide."
+                        data-ta="பணியாளர்கள் வழங்கும் சேவைகளுக்கு அவர்களே பொறுப்பு.">Workers are responsible for the
+                        services they provide.</span>
+                </li>
+                <li>
+                    <strong data-en="Dispute Policy:" data-ta="தகராறு கொள்கை:">Dispute Policy:</strong>
+                    <span data-en="Nearva is not liable for disputes between customers and workers."
+                        data-ta="வாடிக்கையாளர்களுக்கும் பணியாளர்களுக்கும் இடையிலான தகராறுகளுக்கு நேர்வா பொறுப்பல்ல.">Nearva
+                        is not liable for disputes between customers and workers.</span>
+                </li>
+                <li>
+                    <strong data-en="Account Discretion:" data-ta="கணக்கு மேலாண்மை:">Account Discretion:</strong>
+                    <span data-en="We reserve the right to approve or reject worker registrations."
+                        data-ta="பணியாளர் பதிவுகளை அங்கீகரிக்க அல்லது நிராகரிக்க எங்களுக்கு உரிமை உண்டு.">We reserve the
+                        right to approve or reject worker registrations.</span>
+                </li>
+                <li>
+                    <strong data-en="Updates:" data-ta="புதுப்பிப்புகள்:">Updates:</strong>
+                    <span data-en="We may update these terms at any time."
+                        data-ta="இந்த விதிமுறைகளை நாங்கள் எந்த நேரத்திலும் புதுப்பிக்கலாம்.">We may update these terms
+                        at any time.</span>
+                </li>
+            </ol>
+        </div>
+
+        <p class="text-gray-700 mt-8 mb-12" data-en="By continuing to use the platform, you accept these terms."
+            data-ta="தளத்தை தொடர்ந்து பயன்படுத்துவதன் மூலம், இந்த விதிமுறைகளை நீங்கள் ஏற்றுக்கொள்கிறீர்கள்.">By
+            continuing to use the platform, you accept these terms.</p>
+
+        <div class="text-center">
+            <a href="/" data-en="Back to Home" data-ta="முகப்பிற்குச் செல்க"
+                class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Back to Home
+            </a>
+        </div>
+    </main>
+
+    <footer class="bg-gray-50 border-t border-gray-200 mt-auto pb-24 md:pb-0">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col items-center space-y-6">
+
+                <!-- Desktop Links -->
+                <div class="hidden md:flex flex-wrap justify-center gap-8">
+                    <a href="/about" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">About</a>
+                    <a href="/contact"
+                        class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Contact</a>
+                    <a href="/privacy" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Privacy
+                        Policy</a>
+                    <a href="/terms" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Terms of
+                        Service</a>
+                </div>
+
+                <!-- Mobile Toggle -->
+                <div class="md:hidden w-full flex flex-col items-center">
+                    <button onclick="toggleFooterLinks()" id="footer-toggle-btn"
+                        class="text-sm font-medium text-blue-600 bg-white px-6 py-2 rounded-full shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                        More Info
+                    </button>
+
+                    <div id="mobile-footer-links"
+                        class="hidden overflow-hidden transition-all duration-300 ease-in-out mt-4 w-full max-w-xs mx-auto">
+                        <div
+                            class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col items-center animate-fade-in-up">
+                            <div class="flex flex-wrap justify-center gap-2 text-sm font-medium text-gray-600">
+                                <a href="/about" class="hover:text-blue-600 transition">About</a>
+                                <span class="text-gray-300">|</span>
+                                <a href="/contact" class="hover:text-blue-600 transition">Contact</a>
+                                <span class="text-gray-300">|</span>
+                                <a href="/privacy" class="hover:text-blue-600 transition">Privacy</a>
+                                <span class="text-gray-300">|</span>
+                                <a href="/terms" class="hover:text-blue-600 transition">Terms</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mission Text -->
+                <p class="text-center text-sm text-gray-400 max-w-md mx-auto">
+                    Nearva is a local service platform connecting customers with independent service providers.
+                </p>
+
+                <!-- Copyright -->
+                <div class="text-center">
+                    <p class="text-xs text-gray-300">
+                        &copy; 2026 Nearva. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFooterLinks() {
+            const links = document.getElementById('mobile-footer-links');
+            const btn = document.getElementById('footer-toggle-btn');
+
+            if (links.classList.contains('hidden')) {
+                links.classList.remove('hidden');
+                btn.textContent = "Close";
+                btn.classList.add('bg-blue-50', 'text-blue-700');
+                btn.classList.remove('bg-white', 'text-blue-600');
+            } else {
+                links.classList.add('hidden');
+                btn.textContent = "More Info";
+                btn.classList.remove('bg-blue-50', 'text-blue-700');
+                btn.classList.add('bg-white', 'text-blue-600');
+            }
+        }
+
+        // Language Logic with Persistence
+        let currentLang = localStorage.getItem('nearva_lang') || 'en';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePageLanguage();
+            updateLangButtons();
+        });
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ta' : 'en';
+            localStorage.setItem('nearva_lang', currentLang);
+            updatePageLanguage();
+            updateLangButtons();
+        }
+
+        function updateLangButtons() {
+            const display = currentLang === 'en' ? 'EN | தமிழ்' : 'தமிழ் | EN';
+            const btn = document.getElementById('lang-display');
+            if (btn) btn.textContent = display;
+        }
+
+        function updatePageLanguage() {
+            const elements = document.querySelectorAll('[data-en]');
+            document.documentElement.setAttribute('lang', currentLang);
+
+            if (currentLang === 'ta') {
+                document.body.classList.add('tamil-mode');
+            } else {
+                document.body.classList.remove('tamil-mode');
+            }
+
+            elements.forEach(el => {
+                if (currentLang === 'ta' && el.dataset.ta) {
+                    el.innerHTML = el.dataset.ta;
+                } else if (el.dataset.en) {
+                    el.innerHTML = el.dataset.en;
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

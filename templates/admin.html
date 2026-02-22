@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Admin Dashboard - Nearva</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
+    <style>
+        .fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+        }
+
+        .toast-active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.2s ease-out;
+        }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] min-h-screen text-slate-900 overflow-x-hidden">
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 transform transition-all scale-95 opacity-0"
+            id="modalContent">
+            <div
+                class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
+                ⚠️</div>
+            <h3 class="text-xl font-black text-center mb-2" id="modalTitle">Confirm Action</h3>
+            <p class="text-slate-500 text-center text-sm leading-relaxed mb-8" id="modalMsg">Are you sure you want to
+                proceed? This action cannot be undone.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeModal()"
+                    class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-2xl transition-all">Cancel</button>
+                <button id="modalConfirmBtn"
+                    class="py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-2xl shadow-lg shadow-red-200 transition-all">Yes,
+                    Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal"
+        class="{% if is_logged_in %}hidden{% endif %} fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[110] p-4">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full">
+            <div
+                class="w-20 h-20 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-8 text-3xl font-black">
+                N</div>
+            <h2 class="text-3xl font-black mb-2 text-center">Admin Access</h2>
+            <p class="text-slate-500 text-center mb-8 text-sm">Please enter your credentials to manage workers.</p>
+            <div class="space-y-4">
+                <input type="password" id="password"
+                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-600 p-4 rounded-2xl transition-all outline-none"
+                    placeholder="Enter Admin Password">
+                <button onclick="login()" id="loginBtn"
+                    class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 active:scale-95">Login
+                    to Dashboard</button>
+            </div>
+            <p id="errorMsg" class="text-red-500 text-sm mt-4 text-center font-bold hidden">Invalid password</p>
+            <div class="mt-8 text-center">
+                <a href="/" class="text-sm font-bold text-slate-400 hover:text-blue-600 transition-all">← Back to
+                    Website</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard" class="{% if not is_logged_in %}hidden{% endif %}">
+        <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="flex justify-between h-20 px-4 md:px-0">
+                    <div class="flex items-center gap-3 md:gap-6">
+                        <a href="/"
+                            class="text-slate-400 hover:text-slate-900 flex items-center gap-2 font-bold transition-all text-sm group">
+                            <span class="p-2 rounded-xl bg-slate-50 group-hover:bg-slate-100 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <span class="hidden sm:inline">Website</span>
+                        </a>
+                        <div class="h-6 w-[1px] bg-slate-200"></div>
+                        <a href="/" class="flex items-center shrink-0">
+                            <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
+                                class="h-8 md:h-10 w-auto" alt="Nearva Logo">
+                            <span
+                                class="hidden xs:inline text-lg font-black text-slate-900 tracking-tight ml-2 md:ml-3">Admin</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-2 md:gap-4">
+                        <div id="refresh-indicator"
+                            class="hidden items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 md:px-3 md:py-1.5 rounded-full">
+                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping"></div>
+                            <span class="hidden sm:inline">Syncing</span>
+                        </div>
+                        <button onclick="logout()"
+                            class="text-[10px] md:text-xs font-black text-slate-500 hover:text-red-600 px-3 py-2 md:px-5 md:py-2.5 rounded-xl border border-slate-200 hover:border-red-100 hover:bg-red-50 transition-all uppercase tracking-tight">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto py-10 px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">Worker Management</h2>
+                    <p class="text-slate-500 font-medium">Manage registrations, approvals, and system status.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                    <!-- Search -->
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="workerSearch" oninput="applyFilters()"
+                            class="w-full bg-white border border-slate-200 p-3 pl-10 rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+                            placeholder="Search workers...">
+                        <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Chips -->
+            <div class="flex flex-wrap gap-2 mb-8" id="filterChips">
+                <button onclick="setFilter('all')" data-filter="all"
+                    class="filter-chip active py-2 px-5 rounded-full text-xs font-bold transition-all bg-slate-900 text-white shadow-lg shadow-slate-200">All
+                    Workers</button>
+                <button onclick="setFilter('Pending')" data-filter="Pending"
+                    class="filter-chip py-2 px-5 rounded-full text-xs font-bold transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Pending</button>
+                <button onclick="setFilter('Approved')" data-filter="Approved"
+                    class="filter-chip py-2 px-5 rounded-full text-xs font-bold transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Approved</button>
+                <button onclick="setFilter('Rejected')" data-filter="Rejected"
+                    class="filter-chip py-2 px-5 rounded-full text-xs font-bold transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Rejected</button>
+                <div class="w-[1px] h-6 bg-slate-200 self-center"></div>
+                <button onclick="setFilter('online')" data-filter="online"
+                    class="filter-chip py-2 px-5 rounded-full text-xs font-bold transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Online</button>
+                <button onclick="setFilter('offline')" data-filter="offline"
+                    class="filter-chip py-2 px-5 rounded-full text-xs font-bold transition-all bg-white border border-slate-200 text-slate-600 hover:bg-slate-50">Offline</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="workerGrid">
+                <!-- Skeleton Loading -->
+                <div class="bg-white rounded-[2rem] p-6 border border-slate-100 animate-pulse h-48"></div>
+                <div class="bg-white rounded-[2rem] p-6 border border-slate-100 animate-pulse h-48"></div>
+                <div class="bg-white rounded-[2rem] p-6 border border-slate-100 animate-pulse h-48"></div>
+            </div>
+
+            <div id="noResults" class="hidden py-20 flex flex-col items-center justify-center text-center">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center text-3xl mb-4">🔍</div>
+                <h3 class="text-xl font-bold text-slate-900 mb-1">No matching workers</h3>
+                <p class="text-slate-500">Try adjusting your filters or search terms.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allWorkers = [];
+        let currentFilter = 'all';
+        let refreshInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('nearva_admin_logged_in') === 'true') {
+                showDashboard();
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = type === 'success' ? 'bg-white border-green-100 text-slate-900 shadow-green-100' : 'bg-red-600 text-white shadow-red-200';
+            const icon = type === 'success' ? '✅' : '❌';
+
+            toast.className = `${colors} px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 font-bold text-sm transform transition-all translate-y-2 opacity-0 toast-active pointer-events-auto border`;
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('toast-active'), 10);
+            setTimeout(() => {
+                toast.classList.remove('toast-active');
+                toast.classList.add('translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function showModal(title, msg, onConfirm) {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('modalContent');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMsg').textContent = msg;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            confirmBtn.onclick = () => {
+                onConfirm();
+                closeModal();
+            };
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function login() {
+            const password = document.getElementById('password').value;
+            const formData = new FormData();
+            formData.append('password', password);
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Verifying...</span>';
+
+            fetch('/api/admin/login', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        localStorage.setItem('nearva_admin_logged_in', 'true');
+                        showDashboard();
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = 'Login to Dashboard';
+                        document.getElementById('errorMsg').classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.textContent = 'Login to Dashboard';
+                    showToast('Connection failed', 'error');
+                });
+        }
+
+        function showDashboard() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            loadWorkers();
+            // Start silent refresh
+            if (!refreshInterval) {
+                refreshInterval = setInterval(() => loadWorkers(true), 30000);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('nearva_admin_logged_in');
+            window.location.href = '/api/admin/logout';
+        }
+
+        function loadWorkers(isSilent = false) {
+            const indicator = document.getElementById('refresh-indicator');
+            if (isSilent) indicator.classList.remove('hidden');
+
+            fetch('/api/admin/workers')
+                .then(res => res.json())
+                .then(data => {
+                    allWorkers = data;
+                    applyFilters();
+                    setTimeout(() => indicator.classList.add('hidden'), 2000);
+                })
+                .catch(err => {
+                    console.error(err);
+                    if (!isSilent) showToast('Failed to load workers', 'error');
+                });
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white', 'shadow-lg', 'shadow-slate-200', 'active');
+                btn.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('bg-slate-900', 'text-white', 'shadow-lg', 'shadow-slate-200', 'active');
+                    btn.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+                }
+            });
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('workerSearch').value.toLowerCase();
+            const grid = document.getElementById('workerGrid');
+            const noResults = document.getElementById('noResults');
+
+            let filtered = allWorkers.filter(w => {
+                const nameMatch = w.name.toLowerCase().includes(query) || w.service.toLowerCase().includes(query) || w.phone.includes(query);
+                if (!nameMatch) return false;
+
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'online') return w.is_online;
+                if (currentFilter === 'offline') return !w.is_online;
+                return w.account_status === currentFilter;
+            });
+
+            renderGrid(filtered);
+            grid.classList.toggle('hidden', filtered.length === 0);
+            noResults.classList.toggle('hidden', filtered.length > 0);
+        }
+
+        function renderGrid(workers) {
+            const grid = document.getElementById('workerGrid');
+            grid.innerHTML = '';
+
+            workers.forEach(w => {
+                const isOnline = w.is_online;
+                const accStatus = w.account_status || 'Pending';
+
+                let badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-100';
+                if (accStatus === 'Approved') badgeClass = 'bg-green-50 text-green-700 border-green-100';
+                if (accStatus === 'Rejected') badgeClass = 'bg-red-50 text-red-700 border-red-100';
+
+                const card = document.createElement('div');
+                card.id = `worker-${w.id}`;
+                card.className = "group bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 relative overflow-hidden";
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-xl font-black text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                                ${w.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 truncate max-w-[120px]">${w.name}</h3>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${w.service}</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="px-3 py-1 text-[9px] font-black border rounded-full uppercase tracking-wider ${badgeClass}">
+                                ${accStatus}
+                            </span>
+                            <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isOnline ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}">
+                                <span class="w-1 h-1 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-slate-300'}"></span>
+                                <span class="text-[8px] font-black uppercase tracking-tighter">${isOnline ? 'Online' : 'Offline'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center gap-3 text-sm font-medium text-slate-500">
+                            <span class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">📱</span>
+                            ${w.phone}
+                        </div>
+                        <div class="flex items-center gap-3 text-sm font-medium text-slate-500">
+                            <span class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">📍</span>
+                            <span class="truncate max-w-[180px]">${w.area || 'Unknown Area'}</span>
+                        </div>
+                        <div class="text-[9px] font-bold text-slate-400 pl-11">
+                            Added ${formatTime(w.created_at)}
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
+                        <div class="flex gap-2">
+                            ${accStatus !== 'Approved' ? `
+                                <button onclick="updateStatus('${w.id}', 'approve', this)" 
+                                        class="action-btn text-[11px] font-black text-green-600 hover:bg-green-50 px-3 py-2 rounded-xl transition-all">
+                                    APPROVE
+                                </button>
+                            ` : ''}
+                            ${accStatus !== 'Rejected' ? `
+                                <button onclick="confirmReject('${w.id}', this)" 
+                                        class="action-btn text-[11px] font-black text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl transition-all">
+                                    REJECT
+                                </button>
+                            ` : ''}
+                        </div>
+                        <button onclick="confirmDelete('${w.id}', this)" 
+                                class="action-btn w-10 h-10 rounded-xl flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Overlay Spinner -->
+                    <div id="loading-${w.id}" class="absolute inset-0 bg-white/60 backdrop-blur-[1px] hidden items-center justify-center z-10 transition-all">
+                        <svg class="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return 'recently';
+            const date = new Date(isoString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+
+            if (diffInSeconds < 60) return 'just now';
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        function toggleLoading(id, show) {
+            const overlay = document.getElementById(`loading-${id}`);
+            const card = document.getElementById(`worker-${id}`);
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+                if (card) card.style.pointerEvents = show ? 'none' : 'auto';
+            }
+        }
+
+        function updateStatus(id, action, btn) {
+            toggleLoading(id, true);
+
+            fetch(`/api/admin/${action}/${id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    toggleLoading(id, false);
+                    if (data.status === 'success') {
+                        // Update local state for immediate feedback
+                        const worker = allWorkers.find(w => w.id === id);
+                        if (worker) {
+                            worker.account_status = action === 'approve' ? 'Approved' : 'Rejected';
+                        }
+                        showToast(`Worker ${action === 'approve' ? 'Approved' : 'Rejected'}`, 'success');
+                        applyFilters();
+                    }
+                })
+                .catch(() => {
+                    toggleLoading(id, false);
+                    showToast('Action failed', 'error');
+                });
+        }
+
+        function confirmReject(id, btn) {
+            showModal(
+                'Reject Worker?',
+                'Are you sure you want to reject this registration? They will no longer appear on the map.',
+                () => updateStatus(id, 'reject', btn)
+            );
+        }
+
+        function confirmDelete(id, btn) {
+            showModal(
+                'Permanently Delete?',
+                'This will completely remove the worker from the database. This action is irreversible.',
+                () => {
+                    toggleLoading(id, true);
+                    fetch(`/api/admin/delete/${id}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                const card = document.getElementById(`worker-${id}`);
+                                card.classList.add('fade-out');
+                                setTimeout(() => {
+                                    allWorkers = allWorkers.filter(w => w.id !== id);
+                                    showToast('Worker Deleted', 'success');
+                                    applyFilters();
+                                }, 500);
+                            }
+                        })
+                        .catch(() => {
+                            toggleLoading(id, false);
+                            showToast('Delete failed', 'error');
+                        });
+                }
+            );
+        }
+    </script>
+</body>
+
+</html>
