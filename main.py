@@ -32,7 +32,7 @@ cloudinary.config(
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
-headers = {
+SUPABASE_HEADERS = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
     "Content-Type": "application/json",
@@ -58,7 +58,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000) # Compress responses > 1KB
 async def supabase_request(method: str, endpoint: str, data: dict = None, params: dict = None):
     url = f"{SUPABASE_URL}/rest/v1/{endpoint}"
     try:
-        response = await http_client.request(method, url, headers=headers, json=data, params=params)
+        response = await http_client.request(method, url, headers=SUPABASE_HEADERS, json=data, params=params)
         
         if response.status_code >= 400:
             print(f"Supabase Error [{response.status_code}]: {response.text}")
@@ -79,6 +79,7 @@ async def supabase_request(method: str, endpoint: str, data: dict = None, params
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+templates.env.cache = None # Fix: Disable Jinja2 cache for Vercel production stability
 
 # Middleware for Cache Control (Zero-Glitch Delivery)
 @app.middleware("http")
@@ -141,30 +142,30 @@ async def get_workers(category: str = "All", lat: float = None, lng: float = Non
 
 @app.get("/map", response_class=HTMLResponse)
 async def map_page(request: Request, category: str = "All"):
-    return templates.TemplateResponse("map.html", {"request": request, "category": category})
+    return templates.TemplateResponse(request=request, name="map.html", context={"category": category})
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
     if request.session.get("worker_id"):
         return RedirectResponse(url="/worker/dashboard")
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="register.html")
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page(request: Request):
     is_logged_in = request.session.get("admin_logged_in", False)
-    return templates.TemplateResponse("admin.html", {"request": request, "is_logged_in": is_logged_in})
+    return templates.TemplateResponse(request=request, name="admin.html", context={"is_logged_in": is_logged_in})
 
 @app.get("/about", response_class=HTMLResponse)
 async def about_page(request: Request):
-    return templates.TemplateResponse("about.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="about.html")
 
 @app.get("/contact", response_class=HTMLResponse)
 async def contact_page(request: Request):
-    return templates.TemplateResponse("contact.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="contact.html")
 
 @app.get("/privacy", response_class=HTMLResponse)
 async def privacy_page(request: Request):
-    return templates.TemplateResponse("privacy.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="privacy.html")
 
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_page(request: Request):
