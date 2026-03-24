@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://nearva.in/</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://nearva.in/about</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://nearva.in/contact</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Vellore Service Pages -->
+  <url><loc>https://nearva.in/vellore/plumber</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/electrician</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/cook</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/driver</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/carpenter</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/ac-technician</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/mason</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/house-cleaning</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/two-wheeler-mechanic</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/mobile-repair</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/refrigerator-repair</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/washing-machine-repair</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/ro-water-purifier-service</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/painter</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/pest-control</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/water-tank-cleaning</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/car-mechanic</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/puncture-repair</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/cctv-installation</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/laptop-repair</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/sofa-cleaning</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/deep-cleaning</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://nearva.in/vellore/real-estate-agent</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+</urlset>

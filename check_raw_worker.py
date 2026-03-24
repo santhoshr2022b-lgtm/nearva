@@ -1,7 +1,6 @@
-
+import os
 import httpx
 import asyncio
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,21 +14,18 @@ headers = {
     "Content-Type": "application/json"
 }
 
-async def check_columns():
-    print("--- 🔍 Checking Table Columns ---")
+async def check_workers():
+    url = f"{SUPABASE_URL}/rest/v1/workers?account_status=eq.Approved&limit=1"
     async with httpx.AsyncClient() as client:
-        # Fetch one worker with all columns
-        url = f"{SUPABASE_URL}/rest/v1/workers?select=*&limit=1"
         response = await client.get(url, headers=headers)
-        
         if response.status_code == 200:
             workers = response.json()
             if workers:
-                print("Columns found:", workers[0].keys())
+                print(workers[0])
             else:
-                print("Table is empty, cannot check columns easily via REST.")
+                print("No approved workers found.")
         else:
-            print(f"Error ({response.status_code}): {response.text}")
+            print(f"Error: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
-    asyncio.run(check_columns())
+    asyncio.run(check_workers())

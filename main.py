@@ -15,6 +15,19 @@ from contextlib import asynccontextmanager
 # Load environment variables
 load_dotenv()
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.utils
+import time
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    api_key = os.environ.get('CLOUDINARY_API_KEY'),
+    api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
+    secure = True
+)
+
 # Supabase Config
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
@@ -89,6 +102,43 @@ async def add_cache_control_header(request: Request, call_next):
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/api/workers")
+async def get_workers(category: str = "All", lat: float = None, lng: float = None):
+    # Master Optimization: Fetch ONLY minimum required fields for map rendering
+    fields = "id,name,phone,service,experience,area,latitude,longitude,is_online,last_active,profile_photo,ambassadors(name)"
+    query = f"workers?account_status=eq.Approved&latitude=not.is.null&longitude=not.is.null&select={fields}"
+    
+    # 1. Category Filtering
+    if category != "All":
+        query += f"&service=eq.{category}"
+        
+    # 2. Geospatial Filtering (10km Bounding Box)
+    if lat is not None and lng is not None:
+        # ~10km bounding box (approximate)
+        # 1 deg lat is ~111km, 1 deg lng at 12 deg lat is ~108km
+        lat_delta = 0.1 # approx 11km
+        lng_delta = 0.1 # approx 11km
+        
+        lat_min = lat - lat_delta
+        lat_max = lat + lat_delta
+        lng_min = lng - lng_delta
+        lng_max = lng + lng_delta
+        
+        query += f"&latitude=gte.{lat_min}&latitude=lte.{lat_max}"
+        query += f"&longitude=gte.{lng_min}&longitude=lte.{lng_max}"
+        
+    response = await supabase_request("GET", query)
+    workers = response.json()
+    
+    # Debug log
+    if lat is not None:
+        print(f"DEBUG: Found {len(workers)} workers for category {category} near {lat}, {lng}")
+    else:
+        print(f"DEBUG: Found {len(workers)} workers for category {category} (Global)")
+    
+    return workers
+
+
 @app.get("/map", response_class=HTMLResponse)
 async def map_page(request: Request, category: str = "All"):
     return templates.TemplateResponse("map.html", {"request": request, "category": category})
@@ -120,6 +170,7 @@ async def privacy_page(request: Request):
 async def terms_page(request: Request):
     return templates.TemplateResponse("terms.html", {"request": request})
 
+
 # --- API Endpoints ---
 # (Removed duplicate /api/workers route here)
 
@@ -133,14 +184,15 @@ async def register_worker(
     area: str = Form(...),
     latitude: float = Form(...),
     longitude: float = Form(...),
-    profile_photo: str = Form(None)
+    profile_photo: str = Form(None),
+    ambassador_id: str = Form(None)
 ):
     # Check if phone number already exists
     check_response = await supabase_request("GET", f"workers?phone=eq.{phone}")
     existing_workers = check_response.json()
     
     if existing_workers:
-        return RedirectResponse(url="/register?error=duplicate", status_code=303)
+        return JSONResponse({"status": "error", "message": "Phone number is already registered."}, status_code=409)
     
     # Hash the password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -166,19 +218,40 @@ async def register_worker(
         "completed_jobs": 0
     }
     
+    ambassador_name = None
+    ambassador_phone = None
+    if ambassador_id:
+        worker_data["ambassador_id"] = ambassador_id
+        # fetch ambassador details to return to frontend for whatsapp link
+        amb_res = await supabase_request("GET", f"ambassadors?id=eq.{ambassador_id}")
+        ambs = amb_res.json()
+        if ambs:
+            ambassador_name = ambs[0].get("name")
+            ambassador_phone = ambs[0].get("phone")
+    
     result = await supabase_request("POST", "workers", data=worker_data)
     if not result.is_success:
         print(f"Supabase Error: {result.status_code} - {result.text}")
-        return RedirectResponse(url="/register?error=db_error", status_code=303)
+        return JSONResponse({"status": "error", "message": "Database error occurred."}, status_code=500)
         
-    return RedirectResponse(url="/register?success=true", status_code=303)
+    return JSONResponse({
+        "status": "success", 
+        "worker": {
+            "name": name,
+            "service": service,
+            "experience": experience,
+            "phone": phone,
+            "ambassador_name": ambassador_name,
+            "ambassador_phone": ambassador_phone
+        }
+    })
 
 # --- Admin API ---
 
 @app.post("/api/admin/login")
 async def admin_login(request: Request, password: str = Form(...)):
     # Use environment variable or fallback to user specified password
-    if password == os.environ.get("ADMIN_PASSWORD", "Vignesh@47rv"):
+    if password == os.environ.get("ADMIN_PASSWORD", "AB125467#aaa1"):
         request.session["admin_logged_in"] = True
         return JSONResponse({"status": "success"})
     return JSONResponse({"status": "error"}, status_code=401)
@@ -190,7 +263,7 @@ async def admin_logout(request: Request):
 
 @app.get("/api/admin/workers")
 async def get_all_workers():
-    response = await supabase_request("GET", "workers?select=*&order=created_at.desc")
+    response = await supabase_request("GET", "workers?select=*,ambassadors(name)&order=created_at.desc")
     return response.json()
 
 @app.post("/api/admin/approve/{worker_id}")
@@ -224,6 +297,47 @@ async def toggle_availability(worker_id: str):
     await supabase_request("PATCH", f"workers?id=eq.{worker_id}", data={"availability": new_status, "is_online": is_online})
     return {"status": "success", "new_status": new_status}
 
+# --- Ambassador API ---
+
+@app.get("/api/ambassadors")
+async def get_ambassadors():
+    response = await supabase_request("GET", "ambassadors?status=eq.active&select=id,name,area,phone,workers(name,service,area,is_online)&workers.account_status=eq.Approved")
+    return response.json()
+
+@app.post("/api/admin/ambassadors")
+async def create_ambassador(request: Request, name: str = Form(...), phone: str = Form(...), area: str = Form(...)):
+    if not request.session.get("admin_logged_in"):
+        return JSONResponse({"status": "error"}, status_code=401)
+    # Ensure phone number formatting is valid (simple strip)
+    phone = "".join(filter(str.isdigit, phone))[-10:]
+    data = {"name": name, "phone": phone, "area": area, "status": "active"}
+    res = await supabase_request("POST", "ambassadors", data=data)
+    if res.status_code >= 400: return JSONResponse({"status": "error", "message": res.text}, status_code=400)
+    return {"status": "success"}
+
+@app.get("/api/admin/ambassadorsList")
+async def get_admin_ambassadors(request: Request):
+    if not request.session.get("admin_logged_in"):
+        return JSONResponse({"status": "error"}, status_code=401)
+    response = await supabase_request("GET", "ambassadors?select=id,name,phone,area,status,created_at,workers(count)&order=created_at.desc")
+    # If the subquery on workers(count) fails because of Supabase version, we'll try catching it.
+    if response.status_code >= 400:
+        # Fallback without count
+        response = await supabase_request("GET", "ambassadors?select=*&order=created_at.desc")
+    
+    return response.json()
+
+@app.post("/api/admin/ambassadors/{id}/toggle")
+async def toggle_ambassador(request: Request, id: str):
+    if not request.session.get("admin_logged_in"):
+        return JSONResponse({"status": "error"}, status_code=401)
+    amb_res = await supabase_request("GET", f"ambassadors?id=eq.{id}")
+    ambs = amb_res.json()
+    if not ambs: return {"status": "error"}
+    new_status = "inactive" if ambs[0]["status"] == "active" else "active"
+    await supabase_request("PATCH", f"ambassadors?id=eq.{id}", data={"status": new_status})
+    return {"status": "success", "new_status": new_status}
+
 # --- Worker Real-Time API ---
 
 @app.get("/login")
@@ -243,6 +357,65 @@ async def worker_dashboard_page(request: Request):
     if not worker_id:
         return RedirectResponse(url="/worker/login")
     return templates.TemplateResponse("worker_dashboard.html", {"request": request, "worker_id": worker_id})
+
+@app.get("/worker/profile", response_class=HTMLResponse)
+async def worker_profile_page(request: Request):
+    worker_id = request.session.get("worker_id")
+    if not worker_id:
+        return RedirectResponse(url="/worker/login")
+    return templates.TemplateResponse("worker_profile.html", {"request": request, "worker_id": worker_id})
+
+@app.get("/api/cloudinary/signature")
+async def get_cloudinary_signature(request: Request):
+    session_worker_id = request.session.get("worker_id")
+    if not session_worker_id:
+        return JSONResponse({"status": "error", "message": "Unauthorized access."}, status_code=403)
+        
+    timestamp = int(time.time())
+    params_to_sign = {
+        "timestamp": timestamp,
+        "folder": "nearva_profiles"
+    }
+
+    signature = cloudinary.utils.api_sign_request(params_to_sign, os.environ.get('CLOUDINARY_API_SECRET'))
+
+    return {"signature": signature, "timestamp": timestamp, "cloud_name": os.environ.get('CLOUDINARY_CLOUD_NAME'), "api_key": os.environ.get('CLOUDINARY_API_KEY'), "folder": "nearva_profiles"}
+
+@app.post("/api/worker/profile")
+async def update_worker_profile(
+    request: Request,
+    id: str = Form(...),
+    name: str = Form(...),
+    service: str = Form(...),
+    experience: int = Form(...),
+    profile_photo: str = Form(None)
+):
+    session_worker_id = request.session.get("worker_id")
+    if str(session_worker_id) != str(id):
+        return JSONResponse({"status": "error", "message": "Unauthorized access."}, status_code=403)
+        
+    data = {
+        "name": name,
+        "service": service,
+        "experience": experience
+    }
+    if profile_photo:
+        data["profile_photo"] = profile_photo
+        
+    await supabase_request("PATCH", f"workers?id=eq.{id}", data=data)
+    return {"status": "success"}
+
+@app.get("/api/worker/profile/{worker_id}")
+async def get_worker_profile(worker_id: str, request: Request):
+    session_worker_id = request.session.get("worker_id")
+    if str(session_worker_id) != str(worker_id):
+        return JSONResponse({"status": "error", "message": "Unauthorized access."}, status_code=403)
+        
+    response = await supabase_request("GET", f"workers?id=eq.{worker_id}&select=id,name,phone,service,experience,profile_photo")
+    workers = response.json()
+    if workers:
+        return {"status": "success", "worker": workers[0]}
+    return JSONResponse({"status": "error", "message": "Worker not found."}, status_code=404)
 
 @app.post("/api/worker/login")
 async def worker_login(request: Request, phone: str = Form(...), password: str = Form(...)):
@@ -321,23 +494,6 @@ async def worker_update(
     await supabase_request("PATCH", f"workers?id=eq.{id}", data=data)
     return {"status": "success", "is_online": is_online, "availability": availability}
 
-@app.get("/api/workers")
-async def get_workers(category: str = "All"):
-    # Master Optimization: Fetch ONLY minimum required fields for map rendering
-    fields = "id,name,phone,service,experience,area,latitude,longitude,is_online,last_active"
-    query = f"workers?account_status=eq.Approved&latitude=not.is.null&longitude=not.is.null&select={fields}"
-    
-    if category != "All":
-        query += f"&service=eq.{category}"
-        
-    response = await supabase_request("GET", query)
-    workers = response.json()
-    
-    # Debug log (optional but helpful for production verification)
-    print(f"DEBUG: Found {len(workers)} online workers for category {category}")
-    
-    return workers
-
 # Basic in-memory rate limiter
 RE_LIMITER = {}
 
@@ -414,6 +570,17 @@ async def get_worker_status(worker_id: str, request: Request):
         return {"status": "success", "worker": workers[0]}
     return JSONResponse({"status": "error", "message": "Worker not found."}, status_code=404)
     
+@app.get("/{city}/{service}", response_class=HTMLResponse)
+async def service_city_page(request: Request, city: str, service: str):
+    return templates.TemplateResponse(
+        "service_city.html",
+        {
+            "request": request,
+            "city": city.capitalize(),
+            "service": service.replace("-", " ").title()
+        }
+    )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

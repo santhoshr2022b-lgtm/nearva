@@ -1,115 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Worker Login - Nearva</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+{% block title %}Worker Login - Nearva{% endblock %}
+
+{% block head %}
+<style>
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .input-focus {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .input-focus:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+    }
+
+    .premium-btn {
+        background: linear-gradient(to right, #2563EB, #4F46E5);
+        transition: all 0.3s ease;
+    }
+
+    .premium-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px -5px rgba(37, 99, 235, 0.4);
+    }
+
+    .premium-btn:active {
+        transform: translateY(0);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
-    </style>
-</head>
 
-<body class="bg-gray-50 flex items-center justify-center min-h-screen px-4 py-10">
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-    <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-        <div class="text-center">
-            <a href="/" class="inline-block mb-6">
-                <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
-                    class="h-12 w-auto mx-auto" alt="Nearva Logo">
-            </a>
-            <h2 class="text-3xl font-extrabold text-gray-900">Worker Login</h2>
-            <p class="mt-2 text-sm text-gray-600">Enter your phone number to manage your status.</p>
+    .animate-fade-in {
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div
+    class="min-h-screen flex items-center justify-center p-4 pt-32 pb-20 bg-gradient-to-br from-[#667eea] to-[#764ba2]">
+    <div class="max-w-md w-full glass-panel rounded-[2.5rem] p-10 animate-fade-in">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight" data-en="Worker Portal"
+                data-ta="பணியாளர் போர்டல்">Worker Portal</h2>
+            <p class="mt-3 text-gray-500 font-medium" data-en="Welcome back! Manage your status and profile."
+                data-ta="மீண்டும் வருக! உங்கள் நிலை மற்றும் சுயவிவரத்தை நிர்வகிக்கவும்.">Welcome back! Manage your
+                status and profile.</p>
         </div>
 
-        <form id="login-form" class="mt-8 space-y-6">
-            <input type="hidden" name="remember" value="true">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div class="mb-4">
-                    <label for="phone" class="sr-only">Phone Number</label>
-                    <input id="phone" name="phone" type="tel" required inputmode="numeric" pattern="[0-9]*"
-                        autocomplete="tel"
-                        class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                        placeholder="Phone Number (e.g., 9876543210)">
+        <form id="login-form" class="space-y-6">
+            <div class="space-y-4">
+                <div class="relative group">
+                    <label for="phone"
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block"
+                        data-en="Phone Number" data-ta="தொலைபேசி எண்">Phone Number</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                        </span>
+                        <input id="phone" name="phone" type="tel" required inputmode="numeric" pattern="[0-9]*"
+                            class="input-focus block w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter"
+                            placeholder="Enter mobile number" data-en="Enter mobile number"
+                            data-ta="தொலைபேசி எண்ணை உள்ளிடவும்">
+                    </div>
                 </div>
-                <div>
-                    <label for="password" class="sr-only">Password</label>
-                    <input id="password" name="password" type="password" required
-                        class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                        placeholder="Password">
+
+                <div class="relative group">
+                    <label for="password"
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5 block"
+                        data-en="Password" data-ta="கடவுச்சொல்">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </span>
+                        <input id="password" name="password" type="password" required
+                            class="input-focus block w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-inter"
+                            placeholder="••••••••">
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <button type="submit"
-                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md">
-                    Login
-                </button>
+            <button type="submit"
+                class="premium-btn w-full text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <span id="btn-text" data-en="Log In" data-ta="உள்நுழைய">Log In</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+
+            <div class="text-center pt-2">
+                <p class="text-sm text-gray-500 font-medium">
+                    <span data-en="New to Nearva?" data-ta="நியார்வாவிற்கு புதியவரா?">New to Nearva?</span>
+                    <a href="/register" class="text-blue-600 font-bold hover:text-blue-700 transition-colors ml-1"
+                        data-en="Become a Partner" data-ta="கூட்டாளராகுங்கள்">
+                        Become a Partner
+                    </a>
+                </p>
             </div>
 
-            <div class="mt-6 text-center space-y-2">
-                <a href="/register" class="text-sm text-blue-600 hover:text-blue-800 font-medium block">
-                    Don't have an account? Register here
-                </a>
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-700 block">
-                    ← Back to Home
-                </a>
-            </div>
-            <p id="error-msg" class="text-red-500 text-center text-sm hidden"></p>
+            <p id="error-msg"
+                class="text-red-500 text-center text-sm font-semibold bg-red-50 py-3 rounded-xl hidden animate-pulse">
+            </p>
         </form>
+
+        <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center px-2">
+            <a href="/"
+                class="text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-600 transition-colors"
+                data-en="← Back Home" data-ta="← முகப்பு">← Back Home</a>
+            <span class="text-xs font-medium text-gray-300">V 2.0.1</span>
+        </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', handleLogin);
+{% block scripts %}
+<script>
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const phone = document.getElementById('phone').value;
-            const btn = document.querySelector('button');
-            const errorMsg = document.getElementById('error-msg');
+    async function handleLogin(e) {
+        e.preventDefault();
+        const phone = document.getElementById('phone').value;
+        const btn = e.target.querySelector('button');
+        const btnText = document.getElementById('btn-text');
+        const errorMsg = document.getElementById('error-msg');
 
-            btn.disabled = true;
-            btn.textContent = "Checking...";
-            errorMsg.classList.add('hidden');
+        btn.disabled = true;
+        btnText.textContent = "Verifying...";
+        errorMsg.classList.add('hidden');
 
-            const formData = new FormData();
-            formData.append('phone', phone);
-            formData.append('password', document.getElementById('password').value);
+        const formData = new FormData();
+        formData.append('phone', phone);
+        formData.append('password', document.getElementById('password').value);
 
-            try {
-                const response = await fetch('/api/worker/login', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
+        try {
+            const response = await fetch('/api/worker/login', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
 
-                if (data.status === 'success') {
-                    localStorage.setItem('nearva_worker_id', data.worker.id);
-                    localStorage.setItem('nearva_worker_name', data.worker.name);
-                    localStorage.setItem('nearva_worker_status', data.worker.status);
-                    window.location.href = '/worker/dashboard';
-                } else {
-                    errorMsg.textContent = data.message || "Login failed";
-                    errorMsg.classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error(err);
-                errorMsg.textContent = "Connection error. Please try again.";
+            if (data.status === 'success') {
+                localStorage.setItem('nearva_worker_id', data.worker.id);
+                localStorage.setItem('nearva_worker_name', data.worker.name);
+                localStorage.setItem('nearva_worker_status', data.worker.status);
+                window.location.href = '/worker/dashboard';
+            } else {
+                errorMsg.textContent = data.message || "Invalid credentials";
                 errorMsg.classList.remove('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = "Login";
             }
+        } catch (err) {
+            console.error(err);
+            errorMsg.textContent = "Network error. Try again.";
+            errorMsg.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = "Log In";
         }
-    </script>
-</body>
-
-</html>
+    }
+</script>
+{% endblock %}

@@ -44,6 +44,14 @@ class Worker(db.Model):
 def index():
     return render_template('index.html')
 
+@app.route("/<city>/<service>")
+def service_city_page(city, service):
+    return render_template(
+        "service_city.html",
+        city=city.capitalize(),
+        service=service.replace("-", " ").title()
+    )
+
 @app.route('/map')
 def map_view():
     return render_template('map.html')

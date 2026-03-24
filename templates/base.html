@@ -2,37 +2,233 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nearva - Hyperlocal Services</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="google-site-verification" content="DxkaThy1RH8UMu7R3Zp9yNXSUtQg4CslIsUYAXuL0lA" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Nearva - Hyperlocal Services{% endblock %}</title>
+
+  <!-- Performance: Preloading & Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="image" href="{{ url_for('static', path='images/nearva_logo.png') }}">
+
+  <!-- UI Core: Tailwind & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;600;700&family=Noto+Sans+Tamil:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=11.0">
+
+  <style>
+    body {
+      font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .hero-content-shadow {
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  {% block head %}{% endblock %}
+  <script src="{{ url_for('static', path='js/categories.js') }}"></script>
 </head>
 
-<body>
-    <nav>
-        <div class="logo">
-            <!-- Logo will be placed here -->
-            <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
-                alt="Nearva Logo" class="logo-img">
-
+<body class="bg-gray-50 flex flex-col min-h-screen">
+  <!-- Global Toast Container -->
+  <div id="toast-container"></div>
+  {% block header %}
+  <!-- Floating Navigation Bar -->
+  <header id="main-nav"
+    class="fixed top-6 left-1/2 -translate-x-1/2 w-[92%] max-w-7xl z-[100] transition-all duration-500 bg-white border border-gray-100 shadow-[0_8px_32px_rgba(0,0,0,0.08)] rounded-[28px] overflow-hidden">
+    <div class="px-6 py-3 md:px-8 md:py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <a href="/" class="flex items-center group">
+            <img src="{{ url_for('static', path='images/nearva_logo.png') }}"
+              class="h-12 md:h-16 w-auto mix-blend-multiply transition-transform group-hover:scale-105 object-contain gpu-accelerated"
+              alt="Nearva Logo">
+          </a>
         </div>
-        <div class="nav-links">
-            <a href="{{ url_for('index') }}">Home</a>
-            <a href="{{ url_for('map_view') }}">Nearby Services</a>
-            <a href="{{ url_for('register') }}">Join as Worker</a>
-            <a href="{{ url_for('admin') }}">Admin</a>
+
+        <div class="flex items-center gap-4 md:gap-8">
+          <button onclick="toggleLanguage()"
+            class="text-[11px] md:text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors uppercase tracking-widest whitespace-nowrap">
+            <span id="lang-display">EN | தமிழ்</span>
+          </button>
+
+          <div class="hidden md:flex items-center gap-8">
+            <a href="/worker/login" class="text-sm font-bold text-gray-600 hover:text-blue-600 transition-all active:scale-95"
+              data-en="Worker Login" data-ta="பணியாளர் உள்நுழைவு">Worker Login</a>
+            <a href="/register"
+              class="px-8 py-3 rounded-full bg-blue-600 text-white text-sm font-black hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/30 active:scale-95 transition-all duration-300 ease-out"
+              data-en="Join as Worker" data-ta="பணியாளராக சேரவும்">Join as Worker</a>
+          </div>
+
+          <a href="/worker/login" class="md:hidden p-2 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+          </a>
         </div>
-    </nav>
+      </div>
+    </div>
+  </header>
+  {% endblock %}
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+  {% block mobile_nav %}
+  <!-- Mobile Bottom Navigation -->
+  <div
+    class="md:hidden fixed bottom-0 w-full z-[100] bg-white/90 backdrop-blur-xl border-t border-gray-100 flex justify-around items-center py-2 pb-safe shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+    <a href="/" class="flex flex-col items-center p-2 text-blue-600 active:scale-90 transition-all">
+      <svg class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+      <span class="text-[10px] font-bold">Home</span>
+    </a>
+    <a href="/map" class="flex flex-col items-center p-2 text-gray-400 hover:text-blue-600 active:scale-90 transition-all">
+      <svg class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7" />
+      </svg>
+      <span class="text-[10px] font-medium">Map</span>
+    </a>
+    <a href="/register" class="flex flex-col items-center relative group active:scale-90 transition-all">
+      <div
+        class="absolute -top-8 bg-blue-600 text-white rounded-full p-3 shadow-xl hover:scale-110 active:scale-95 transition-all border-4 border-white">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+      </div>
+      <div class="h-6 w-6 mb-1"></div>
+      <span class="text-[10px] font-medium mt-1 text-gray-500">Join</span>
+    </a>
+    <a href="/worker/login" class="flex flex-col items-center p-2 text-gray-400 hover:text-blue-600 active:scale-90 transition-all">
+      <svg class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+      </svg>
+      <span class="text-[10px] font-medium">Login</span>
+    </a>
+  </div>
+  {% endblock %}
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    {% block scripts %}{% endblock %}
+  <main class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block footer %}
+  <!-- Unified Footer -->
+  <footer class="bg-white border-t border-gray-100 pt-16 pb-24 md:pb-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <img src="{{ url_for('static', path='images/nearva_logo.png') }}"
+        class="h-12 w-auto mx-auto mb-8 mix-blend-multiply opacity-50 grayscale hover:grayscale-0 transition-all duration-500"
+        alt="Nearva Logo">
+
+      <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-10 text-sm font-semibold text-gray-500">
+        <a href="/about" class="hover:text-blue-600 transition">About</a>
+        <a href="/contact" class="hover:text-blue-600 transition">Contact</a>
+        <a href="/privacy" class="hover:text-blue-600 transition">Privacy Policy</a>
+        <a href="/terms" class="hover:text-blue-600 transition">Terms of Service</a>
+      </div>
+
+      <p class="text-xs text-gray-400 max-w-md mx-auto leading-relaxed mb-6 font-medium">
+        Nearva is a verified hyperlocal network connecting neighborhoods with professional service providers instantly.
+      </p>
+
+      <div class="flex items-center justify-center gap-4 pt-6 border-t border-gray-50">
+        <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest leading-loose">
+          &copy; 2026 Nearva Hyperlocal.<br />All professional rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+  {% endblock %}
+
+  <!-- Global Language Logic -->
+  <script>
+    let currentLang = localStorage.getItem('nearva_lang') || 'en';
+    document.addEventListener('DOMContentLoaded', () => { updatePageLanguage(); });
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ta' : 'en';
+      localStorage.setItem('nearva_lang', currentLang);
+      updatePageLanguage();
+    }
+
+    function updatePageLanguage() {
+      document.documentElement.setAttribute('lang', currentLang);
+      const elements = document.querySelectorAll('[data-en]');
+      elements.forEach(el => {
+        const text = currentLang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-ta');
+        if (text) {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = text;
+          else el.innerHTML = text;
+        }
+      });
+      const display = document.getElementById('lang-display');
+      if (display) display.textContent = currentLang === 'en' ? 'EN | தமிழ்' : 'தமிழ் | EN';
+      document.body.classList.toggle('tamil-mode', currentLang === 'ta');
+    }
+
+    // Global Notification System
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const isSuccess = type === 'success';
+      const isError = type === 'error' || type === 'danger';
+      
+      let bg = 'bg-white border-gray-100';
+      let textColor = 'text-gray-900';
+      let shadow = 'shadow-[0_12px_40px_rgba(0,0,0,0.08)]';
+      let icon = '✨';
+
+      if (isSuccess) {
+        bg = 'bg-white border-green-100';
+        icon = '✅';
+      } else if (isError) {
+        bg = 'bg-red-600 border-red-500';
+        textColor = 'text-white';
+        shadow = 'shadow-[0_12px_40px_rgba(220,38,38,0.2)]';
+        icon = '⚠️';
+      }
+
+      toast.className = `toast px-6 py-4 rounded-[20px] border ${bg} ${textColor} ${shadow} flex items-center gap-3 font-bold text-[13px] pointer-events-auto backdrop-blur-xl transition-all duration-400`;
+      toast.innerHTML = `
+          <span class="text-base">${icon}</span>
+          <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+      
+      // Force Reflow
+      toast.offsetHeight;
+      toast.classList.add('toast-active');
+
+      setTimeout(() => {
+        toast.classList.remove('toast-active');
+        setTimeout(() => toast.remove(), 500);
+      }, 4000);
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+
 </body>
 
 </html>

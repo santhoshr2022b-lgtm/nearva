@@ -1,667 +1,264 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Nearva - Hyperlocal Services</title>
-    <!-- Performance Tier-1: Resource Preloading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="image" href="{{ url_for('static', path='images/nearva_logo.png') }}?v=standard">
-    <link rel="preload" as="video" href="{{ url_for('static', path='images/hero_backgroundvideo.mp4') }}">
+{% block title %}Nearva - Hyperlocal Services{% endblock %}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Noto+Sans+Tamil:wght@400;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
+{% block head %}
+<style>
+    .hero-bg {
+        background-image: url("{{ url_for('static', path='images/hero_bg.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-color: #111;
+    }
 
-        .fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(30px);
-            will-change: transform, opacity;
-        }
+    .hero-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: opacity;
+    }
 
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .hero-video.loaded {
+        opacity: 1;
+    }
 
-        /* 144Hz Performance & Smoothness Essentials */
-        .gpu-accelerated {
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            perspective: 1000px;
-            will-change: transform;
-        }
+    .hero-dark-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 2;
+        pointer-events: none;
+    }
 
-        .smooth-transition {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    .hero-overlay {
+        background: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0) 30%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 1) 100%);
+        z-index: 3;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
 
-        /* Force GPU for navigation and overlay elements */
-        nav,
-        .fixed,
-        .absolute {
-            transform: translateZ(0);
-        }
+{% block content %}
+<!-- Hero Section -->
+<div class="relative min-h-screen flex items-start sm:items-center justify-center hero-bg overflow-hidden pt-20">
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline poster="{{ url_for('static', path='images/hero_bg.jpg') }}" preload="auto"
+        class="hero-video" id="hero-video-bg">
+        <source src="{{ url_for('static', path='images/hero_backgroundvideo.mp4') }}" type="video/mp4">
+    </video>
 
-        /* Hero Video Background Optimization */
-        .hero-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: opacity;
-        }
+    <!-- Dark Overlay for contrast -->
+    <div class="hero-dark-overlay"></div>
 
-        .hero-video.loaded {
-            opacity: 1;
-        }
+    <!-- Glassy Gradient Overlay (Fog) -->
+    <div class="absolute inset-0 hero-overlay"></div>
 
-        .hero-dark-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.45);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .hero-overlay {
-            background: linear-gradient(to bottom,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    rgba(255, 255, 255, 0) 30%,
-                    rgba(255, 255, 255, 0) 60%,
-                    rgba(255, 255, 255, 1) 100%);
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        .hero-bg {
-            background-image: url("{{ url_for('static', path='images/hero_bg.jpg') }}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-color: #111;
-            /* Fallback color */
-        }
-
-        .hero-content-shadow {
-            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .animate-delay-1 {
-            animation-delay: 0.2s;
-        }
-
-        .animate-delay-2 {
-            animation-delay: 0.4s;
-        }
-
-        /* Tamil Typography Polish */
-        .tamil-mode h1 {
-            font-family: 'Noto Sans Tamil', sans-serif;
-            line-height: 1.35 !important;
-            letter-spacing: -0.01em !important;
-        }
-
-        @media (max-width: 640px) {
-            .tamil-mode h1 {
-                font-size: 2.5rem !important;
-            }
-        }
-    </style>
-</head>
-
-<body class="bg-gray-50 from-blue-50 to-white bg-gradient-to-b min-h-screen">
-
-    <!-- Navigation (Desktop Only) -->
-    <nav
-        class="hidden md:block fixed w-full top-0 z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
-        <div class="w-full px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Branding -->
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center group">
-                        <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
-                            class="h-12 md:h-14 w-auto transition-transform group-hover:scale-105 object-contain gpu-accelerated"
-                            alt="Nearva Logo" width="180" height="56">
-                    </a>
-                </div>
-
-                <!-- Desktop Menu -->
-                <div class="flex items-center gap-6">
-                    <!-- Language Toggle -->
-                    <button onclick="toggleLanguage()"
-                        class="text-sm font-semibold text-gray-500 hover:text-blue-600 transition-colors uppercase tracking-wide">
-                        <span id="lang-display">EN | தமிழ்</span>
-                    </button>
-
-                    <a href="/worker/login"
-                        class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors duration-200"
-                        data-en="Worker Login" data-ta="பணியாளர் உள்நுழைவு">
-                        Worker Login
-                    </a>
-                    <a href="/register"
-                        class="px-6 py-2.5 rounded-full bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20 active:scale-95 transition-all duration-200 ease-out"
-                        data-en="Join as Worker" data-ta="பணியாளராக சேரவும்">
-                        Join as Worker
-                    </a>
-                    <a href="/admin"
-                        class="text-xs font-medium text-gray-300 hover:text-gray-500 transition-colors uppercase tracking-wider">
-                        Admin
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Top Bar -->
     <div
-        class="md:hidden fixed top-0 w-full z-40 bg-white/90 backdrop-blur-xl shadow-sm border-b border-gray-100 px-4 py-2 flex justify-between items-center bg-gradient-to-r from-blue-50/50 to-white">
-        <div class="flex items-center gap-2">
-            <a href="/">
-                <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
-                    class="h-12 w-auto gpu-accelerated" alt="Logo" width="120" height="48">
+        class="relative z-10 container max-w-[1100px] mx-auto px-6 pt-32 pb-20 md:py-20 text-center flex flex-col items-center">
+
+        <p class="fade-in-up text-sm md:text-base text-blue-400 font-bold uppercase tracking-[0.2em] mb-6">
+            <span data-en="Trusted workers in your area within seconds."
+                data-ta="உங்கள் பகுதியில் உள்ள நம்பிக்கையான பணியாளர்கள்.">Trusted workers in your area within
+                seconds.</span>
+        </p>
+
+        <h1
+            class="fade-in-up animate-delay-1 text-5xl sm:text-6xl md:text-8xl font-black text-white tracking-tight mb-8 leading-[1.05] hero-content-shadow">
+            <span data-en="Help is" data-ta="உதவி">Help is</span>
+            <span class="text-[#3b82f6] relative inline-block">
+                <span data-en="closer" data-ta="அருகிலேயே">closer</span>
+            </span>
+            <br class="hidden md:block" />
+            <span data-en="than you think." data-ta="இருக்கிறது.">than you think.</span>
+        </h1>
+
+        <p
+            class="fade-in-up animate-delay-2 hero-sub text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed font-medium hero-content-shadow">
+            <span data-en="Find trusted local workers instantly. No middlemen, just direct connection."
+                data-ta="உடனடியாக பணியாளர்களைக் கண்டறியவும். <br class='hidden md:block' /> நேரடித் தொடர்பு, இடைத்தரகர்கள் இல்லை.">Find
+                trusted local workers instantly. <br class="hidden md:block" /> No middlemen, just direct
+                connection.</span>
+        </p>
+
+        <div
+            class="fade-in-up animate-delay-2 flex flex-col sm:flex-row gap-4 justify-center w-full max-w-[340px] sm:max-w-2xl mx-auto px-4">
+            <a href="/map"
+                class="gpu-accelerated group inline-flex items-center justify-center px-8 py-5 text-base sm:text-lg font-bold rounded-2xl text-white bg-[#2563eb] hover:bg-[#1d4ed8] shadow-xl shadow-blue-600/20 active:scale-95 transition-all duration-300 w-full sm:w-auto whitespace-nowrap">
+                <span data-en="Find Nearby Workers" data-ta="பணியாளர்களைத் தேடுங்கள்">Find Nearby Workers</span>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 sm:h-6 sm:w-6 ml-2 md:ml-3 group-hover:translate-x-1.5 transition-transform"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
             </a>
-            <!-- Mobile Language Toggle -->
-            <button onclick="toggleLanguage()"
-                class="ml-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-[10px] font-bold text-blue-600 shadow-sm uppercase tracking-wide">
-                <span id="mobile-lang-display">EN/தமிழ்</span>
+
+            <button onclick="detectLocation(event)"
+                class="gpu-accelerated group inline-flex items-center justify-center px-8 py-5 border border-gray-100 text-base sm:text-lg font-bold rounded-2xl text-gray-800 bg-white shadow-xl active:scale-95 transition-all duration-300 w-full sm:w-auto whitespace-nowrap">
+                <span id="gps-icon" class="mr-2 text-xl sm:text-2xl transition-transform group-hover:rotate-12">📍</span>
+                <span data-en="Use My Location" data-ta="இருப்பிடம்">Use My Location</span>
             </button>
         </div>
 
-        <a href="/admin" class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-        </a>
+        <p
+            class="fade-in-up animate-delay-2 mt-12 text-[10px] md:text-xs text-gray-400 font-bold tracking-[0.3em] uppercase">
+            <span data-en="Live in your neighborhood" data-ta="உங்கள் அருகாமையில்">Live in your
+                neighborhood</span>
+        </p>
     </div>
+</div>
 
-
-    <!-- Mobile Bottom Navigation (Fixed) -->
-    <div
-        class="md:hidden fixed bottom-0 w-full z-50 bg-white/95 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] flex justify-around items-center py-2 pb-safe">
-        <a href="/" class="flex flex-col items-center p-2 text-blue-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span class="text-[10px] font-bold tracking-wide">Home</span>
-        </a>
-        <a href="/map" class="flex flex-col items-center p-2 text-gray-400 hover:text-blue-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 7m0 13V7" />
-            </svg>
-            <span class="text-[10px] font-medium">Map</span>
-        </a>
-        <a href="/register" class="flex flex-col items-center relative group">
+<!-- Trust Badges Section -->
+<div class="bg-white border-b border-gray-100 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div
-                class="absolute -top-8 bg-blue-600 text-white rounded-full p-3 shadow-xl shadow-blue-600/40 border-4 border-white transform transition-transform group-active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-            </div>
-            <div class="h-6 w-6 mb-1"></div> <!-- Spacer -->
-            <span class="text-[10px] font-medium mt-1 text-gray-500 group-hover:text-blue-600">Join</span>
-        </a>
-        <a href="/worker/login"
-            class="flex flex-col items-center p-2 text-gray-400 hover:text-blue-600 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
-            <span class="text-[10px] font-medium">Login</span>
-        </a>
-    </div>
-
-    <!-- Hero Section -->
-    <main class="flex-grow">
-        <div class="relative min-h-screen flex items-center justify-center hero-bg overflow-hidden">
-            <!-- Video Background -->
-            <video autoplay muted loop playsinline poster="{{ url_for('static', path='images/hero_bg.jpg') }}"
-                preload="auto" class="hero-video" id="hero-video-bg">
-                <source src="{{ url_for('static', path='images/hero_backgroundvideo.mp4') }}" type="video/mp4">
-            </video>
-
-            <!-- Dark Overlay for contrast -->
-            <div class="hero-dark-overlay"></div>
-
-            <!-- Glassy Gradient Overlay (Fog) -->
-            <div class="absolute inset-0 hero-overlay"></div>
-
-            <div
-                class="relative z-10 container max-w-[1100px] mx-auto px-6 py-20 text-center flex flex-col items-center">
-
-                <p class="fade-in-up text-sm md:text-base text-blue-400 font-bold uppercase tracking-[0.2em] mb-6">
-                    <span data-en="Trusted workers in your area within seconds."
-                        data-ta="உங்கள் பகுதியில் உள்ள நம்பிக்கையான பணியாளர்கள்.">Trusted workers in your area within
-                        seconds.</span>
-                </p>
-
-                <h1
-                    class="fade-in-up animate-delay-1 text-5xl sm:text-6xl md:text-8xl font-black text-white tracking-tight mb-8 leading-[1.05] hero-content-shadow">
-                    <span data-en="Help is" data-ta="உதவி">Help is</span>
-                    <span class="text-[#3b82f6] relative inline-block">
-                        <span data-en="closer" data-ta="உங்களுக்குப்">closer</span>
-                    </span>
-                    <br class="hidden md:block" />
-                    <span data-en="than you think." data-ta="பக்கத்தில்தான்.">than you think.</span>
-                </h1>
-
-                <p
-                    class="fade-in-up animate-delay-2 hero-sub text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed font-medium hero-content-shadow">
-                    <span data-en="Find trusted local workers instantly. No middlemen, just direct connection."
-                        data-ta="உடனடியாக பணியாளர்களைக் கண்டறியவும். <br class='hidden md:block' /> இடைத்தரகர்கள் இல்லை, நேரடித் தொடர்பு.">Find
-                        trusted local workers instantly. <br class="hidden md:block" /> No middlemen, just direct
-                        connection.</span>
-                </p>
-
+                class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
                 <div
-                    class="fade-in-up animate-delay-2 flex flex-col sm:flex-row gap-4 justify-center w-full max-w-[340px] sm:max-w-2xl mx-auto px-4">
-                    <a href="/map"
-                        class="gpu-accelerated group inline-flex items-center justify-center px-8 py-5 text-base sm:text-lg font-bold rounded-2xl text-white bg-[#2563eb] hover:bg-[#1d4ed8] shadow-xl shadow-blue-600/20 active:scale-95 transition-all duration-300 w-full sm:w-auto whitespace-nowrap">
-                        <span data-en="Find Nearby Workers" data-ta="பணியாளர்களைத் தேடுங்கள்">Find Nearby Workers</span>
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 sm:h-6 sm:w-6 ml-2 md:ml-3 group-hover:translate-x-1.5 transition-transform"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </a>
-
-                    <button onclick="detectLocation()"
-                        class="gpu-accelerated group inline-flex items-center justify-center px-8 py-5 border border-gray-100 text-base sm:text-lg font-bold rounded-2xl text-gray-800 bg-white shadow-xl active:scale-95 transition-all duration-300 w-full sm:w-auto whitespace-nowrap">
-                        <span class="mr-2 text-xl sm:text-2xl">📍</span>
-                        <span data-en="Use My Location" data-ta="இருப்பிடம்">Use My Location</span>
-                    </button>
+                    class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2 text-green-600 text-lg shadow-sm">
+                    ✓
                 </div>
-
-                <p
-                    class="fade-in-up animate-delay-2 mt-12 text-[10px] md:text-xs text-gray-400 font-bold tracking-[0.3em] uppercase">
-                    <span data-en="Live in your neighborhood" data-ta="உங்கள் அருகாமையில்">Live in your
-                        neighborhood</span>
-                </p>
+                <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Verified Workers"
+                    data-ta="சரிபார்க்கப்பட்ட பணியாளர்கள்">Verified Workers</span>
+            </div>
+            <div
+                class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
+                <div
+                    class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 text-blue-600 text-lg shadow-sm">
+                    ✓
+                </div>
+                <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="No Middlemen"
+                    data-ta="இடைத்தரகர்கள் இல்லை">No Middlemen</span>
+            </div>
+            <div
+                class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
+                <div
+                    class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2 text-purple-600 text-lg shadow-sm">
+                    ✓
+                </div>
+                <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Direct Contact"
+                    data-ta="நேரடி தொடர்பு">Direct Contact</span>
+            </div>
+            <div
+                class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
+                <div
+                    class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-2 text-orange-600 text-lg shadow-sm">
+                    ✓
+                </div>
+                <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Free to Use"
+                    data-ta="இலவசம்">Free to Use</span>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Trust Badges Section -->
-        <div class="bg-white border-b border-gray-100 py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div
-                        class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
-                        <div
-                            class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2 text-green-600 text-lg shadow-sm">
-                            ✓
-                        </div>
-                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Verified Workers"
-                            data-ta="சரிபார்க்கப்பட்ட பணியாளர்கள்">Verified Workers</span>
-                    </div>
-                    <div
-                        class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
-                        <div
-                            class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 text-blue-600 text-lg shadow-sm">
-                            ✓
-                        </div>
-                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="No Middlemen"
-                            data-ta="இடைத்தரகர்கள் இல்லை">No Middlemen</span>
-                    </div>
-                    <div
-                        class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
-                        <div
-                            class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2 text-purple-600 text-lg shadow-sm">
-                            ✓
-                        </div>
-                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Direct Contact"
-                            data-ta="நேரடி தொடர்பு">Direct Contact</span>
-                    </div>
-                    <div
-                        class="flex flex-col items-center justify-center p-2 group hover:-translate-y-1 transition-transform duration-300">
-                        <div
-                            class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-2 text-orange-600 text-lg shadow-sm">
-                            ✓
-                        </div>
-                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wide" data-en="Free to Use"
-                            data-ta="இலவசம்">Free to Use</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Categories Section -->
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
+    <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-12 tracking-tight"
+        data-en="Browse Categories" data-ta="வகைகளைத் தேடுங்கள்">
+        Browse Categories
+    </h3>
 
-        <!-- Categories Section -->
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
-            <h3 class="text-2xl md:text-3xl font-extrabold text-gray-900 text-center mb-12 tracking-tight"
-                data-en="Browse Categories" data-ta="வகைகளைத் தேடுங்கள்">
-                Browse Categories
-            </h3>
+    <div id="categories-grid" class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <!-- Categories will be injected here via JavaScript -->
+    </div>
+</div>
+</main>
 
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                <!-- Plumber -->
-                <a href="/map?category=Plumber"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-blue-50/50 backdrop-blur-sm rounded-2xl border border-blue-100/50 transform group-hover:scale-110 group-hover:rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🔧</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Plumber" data-ta="பிளம்பர்">Plumber</span>
-                    </h4>
-                </a>
+</div>
+{% endblock %}
 
-                <!-- Electrician -->
-                <a href="/map?category=Electrician"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-yellow-50/50 backdrop-blur-sm rounded-2xl border border-yellow-100/50 transform group-hover:scale-110 group-hover:-rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">⚡</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Electrician" data-ta="மின்சார நிபுணர்">Electrician</span>
-                    </h4>
-                </a>
+{% block scripts %}
+<script>
+    // Hero Video Loading Polish
+    const heroVideo = document.getElementById('hero-video-bg');
+    if (heroVideo) {
+        heroVideo.addEventListener('play', () => heroVideo.classList.add('loaded'));
+        if (!heroVideo.paused) heroVideo.classList.add('loaded');
+        document.addEventListener('touchstart', () => {
+            if (heroVideo.paused) heroVideo.play();
+        }, { once: true });
+    }
 
-                <!-- Cook -->
-                <a href="/map?category=Cook"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-orange-50/50 backdrop-blur-sm rounded-2xl border border-orange-100/50 transform group-hover:scale-110 group-hover:rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🍳</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Cook" data-ta="சமையல்காரர்">Cook</span>
-                    </h4>
-                </a>
-
-                <!-- Driver -->
-                <a href="/map?category=Driver"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-gray-50/50 backdrop-blur-sm rounded-2xl border border-gray-100/50 transform group-hover:scale-110 group-hover:-rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🚗</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Driver" data-ta="ஓட்டுநர்">Driver</span>
-                    </h4>
-                </a>
-
-                <!-- Carpenter -->
-                <a href="/map?category=Carpenter"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-amber-50/50 backdrop-blur-sm rounded-2xl border border-amber-100/50 transform group-hover:scale-110 group-hover:rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🔨</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Carpenter" data-ta="தச்சர்">Carpenter</span>
-                    </h4>
-                </a>
-
-                <!-- AC Technician -->
-                <a href="/map?category=AC Technician"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-cyan-50/50 backdrop-blur-sm rounded-2xl border border-cyan-100/50 transform group-hover:scale-110 group-hover:-rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">❄️</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="AC Technician" data-ta="ஏசி மெக்கானிக்">AC Technician</span>
-                    </h4>
-                </a>
-
-                <!-- Mason -->
-                <a href="/map?category=Mason"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-stone-50/50 backdrop-blur-sm rounded-2xl border border-stone-100/50 transform group-hover:scale-110 group-hover:rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🧱</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Mason" data-ta="கொத்தனார்">Mason</span>
-                    </h4>
-                </a>
-
-                <!-- House Cleaning -->
-                <a href="/map?category=House Cleaning"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-teal-50/50 backdrop-blur-sm rounded-2xl border border-teal-100/50 transform group-hover:scale-110 group-hover:-rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🧹</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="House Cleaning" data-ta="வீடு சுத்தம்">House Cleaning</span>
-                    </h4>
-                </a>
-
-                <!-- Two-Wheeler Mechanic -->
-                <a href="/map?category=Two-Wheeler Mechanic"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-indigo-50/50 backdrop-blur-sm rounded-2xl border border-indigo-100/50 transform group-hover:scale-110 group-hover:rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">🏍️</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Two-Wheeler Mechanic" data-ta="பைக் மெக்கானிக்">Two-Wheeler Mechanic</span>
-                    </h4>
-                </a>
-
-                <!-- Mobile Repair -->
-                <a href="/map?category=Mobile Repair"
-                    class="gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1">
-                    <div
-                        class="w-16 h-16 flex items-center justify-center bg-rose-50/50 backdrop-blur-sm rounded-2xl border border-rose-100/50 transform group-hover:scale-110 group-hover:-rotate-3 group-hover:animate-float transition-all duration-300">
-                        <span class="text-3xl">📱</span>
-                    </div>
-                    <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
-                        <span data-en="Mobile Repair" data-ta="செல்போன் சரிசெய்தல்">Mobile Repair</span>
-                    </h4>
-                </a>
-            </div>
-        </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-50 border-t border-gray-200 mt-auto pb-24 md:pb-0">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col items-center space-y-6">
-
-                <!-- Desktop Links (Hidden on Mobile) -->
-                <div class="hidden md:flex flex-wrap justify-center gap-8">
-                    <a href="/about" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">About</a>
-                    <a href="/contact"
-                        class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Contact</a>
-                    <a href="/privacy" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Privacy
-                        Policy</a>
-                    <a href="/terms" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition">Terms of
-                        Service</a>
-                </div>
-
-                <!-- Mobile Toggle (Visible on Mobile) -->
-                <div class="md:hidden w-full flex flex-col items-center">
-                    <button onclick="toggleFooterLinks()" id="footer-toggle-btn"
-                        class="text-sm font-medium text-blue-600 bg-white px-6 py-2 rounded-full shadow-sm border border-gray-100 hover:shadow-md transition-all">
-                        More Info
-                    </button>
-
-                    <!-- Mobile Links Panel -->
-                    <div id="mobile-footer-links"
-                        class="hidden overflow-hidden transition-all duration-300 ease-in-out mt-4 w-full max-w-xs mx-auto">
-                        <div
-                            class="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col items-center animate-fade-in-up">
-                            <div class="flex flex-wrap justify-center gap-2 text-sm font-medium text-gray-600">
-                                <a href="/about" class="hover:text-blue-600 transition">About</a>
-                                <span class="text-gray-300">|</span>
-                                <a href="/contact" class="hover:text-blue-600 transition">Contact</a>
-                                <span class="text-gray-300">|</span>
-                                <a href="/privacy" class="hover:text-blue-600 transition">Privacy</a>
-                                <span class="text-gray-300">|</span>
-                                <a href="/terms" class="hover:text-blue-600 transition">Terms</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mission Text -->
-                <p class="text-center text-sm text-gray-400 max-w-md mx-auto px-4">
-                    Nearva is a local service platform connecting customers with independent service providers.
-                </p>
-
-                <!-- Copyright & Date -->
-                <div class="text-center">
-                    <p class="text-xs text-gray-300">
-                        &copy; 2026 Nearva. All rights reserved.
-                    </p>
-                    <p class="text-[10px] text-gray-300 mt-1" data-en="Last updated: January 2026"
-                        data-ta="கடைசியாக புதுப்பிக்கப்பட்டது: ஜனவரி 2026">
-                        Last updated: January 2026
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        function toggleFooterLinks() {
-            const links = document.getElementById('mobile-footer-links');
-            const btn = document.getElementById('footer-toggle-btn');
-
-            if (links.classList.contains('hidden')) {
-                links.classList.remove('hidden');
-                btn.textContent = "Close";
-                btn.classList.add('bg-blue-50', 'text-blue-700');
-                btn.classList.remove('bg-white', 'text-blue-600');
-            } else {
-                links.classList.add('hidden');
-                btn.textContent = "More Info";
-                btn.classList.remove('bg-blue-50', 'text-blue-700');
-                btn.classList.add('bg-white', 'text-blue-600');
-            }
+    // Navbar Scroll Reveal (Specific to Index)
+    const mainNav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            mainNav.classList.add('top-2', 'w-[96%]', 'backdrop-blur-xl', 'shadow-[0_12px_40px_rgba(0,0,0,0.12)]');
+            mainNav.classList.remove('top-6', 'w-[92%]');
+        } else {
+            mainNav.classList.remove('top-2', 'w-[96%]', 'backdrop-blur-xl', 'shadow-[0_12px_40px_rgba(0,0,0,0.12)]');
+            mainNav.classList.add('top-6', 'w-[92%]');
         }
+    });
 
-        function detectLocation() {
-            const btn = event.currentTarget;
-            const originalHtml = btn.innerHTML;
+    // Render dynamic categories
+    const categoriesGrid = document.getElementById('categories-grid');
+    if (categoriesGrid && typeof NEARVA_CATEGORIES !== 'undefined') {
+        NEARVA_CATEGORIES.forEach(cat => {
+            const card = document.createElement('a');
+            card.href = `/map?category=${encodeURIComponent(cat.name)}`;
+            card.className = 'gpu-accelerated group flex flex-col items-center justify-center gap-y-4 aspect-square bg-white rounded-[32px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-50 active:scale-95 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:-translate-y-1';
 
-            if (navigator.geolocation) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="animate-spin mr-2">🔄</span> Detecting...';
+            // Generate color-specific background classes (Tailwind)
+            const bgClass = `bg-${cat.color}-50/50`;
+            const borderClass = `border-${cat.color}-100/50`;
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        window.location.href = `/map?lat=${lat}&lng=${lng}`;
-                    },
-                    (error) => {
-                        btn.disabled = false;
-                        btn.innerHTML = originalHtml;
-                        alert("Unable to retrieve your location. Check browser settings.");
-                    },
-                    { enableHighAccuracy: true, timeout: 5000 }
-                );
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        }
-
-        // Global Smooth Scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
+            card.innerHTML = `
+                <div class="w-16 h-16 flex items-center justify-center ${bgClass} backdrop-blur-sm rounded-2xl border ${borderClass} transform group-hover:scale-110 transition-all duration-300">
+                    <span class="text-3xl">${cat.icon}</span>
+                </div>
+                <h4 class="text-[14px] md:text-[15px] font-bold text-gray-800 text-center leading-tight px-2">
+                    <span data-en="${cat.name}" data-ta="${cat.tamil}">${cat.name}</span>
+                </h4>
+            `;
+            categoriesGrid.appendChild(card);
         });
+    }
 
-        // Language Logic with Persistence
-        let currentLang = localStorage.getItem('nearva_lang') || 'en'; // Load from storage or default English
+    function detectLocation(event) {
+        const btn = event.currentTarget;
+        const originalHtml = btn.innerHTML;
+        const gpsIcon = document.getElementById('gps-icon');
 
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', () => {
-            updatePageLanguage();
-            updateLangButtons();
-        });
+        if (navigator.geolocation) {
+            btn.disabled = true;
+            btn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Detecting...</span>
+            `;
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'ta' : 'en';
-            localStorage.setItem('nearva_lang', currentLang); // Save to storage
-            updatePageLanguage();
-            updateLangButtons();
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    window.location.href = `/map?lat=${lat}&lng=${lng}`;
+                },
+                (error) => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                    // Using a more modern alert or just a toast if available, but staying safe with alert for now
+                    showToast("Unable to retrieve your location. Please ensure location services are enabled.", "error");
+                },
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        } else {
+            showToast("Geolocation is not supported by your browser.", "error");
         }
+    }
 
-        function updateLangButtons() {
-            const display = currentLang === 'en' ? 'EN | தமிழ்' : 'தமிழ் | EN';
-            // Update desktop
-            const deskBtn = document.getElementById('lang-display');
-            if (deskBtn) deskBtn.textContent = display;
-
-            // Update mobile
-            const mobBtn = document.getElementById('mobile-lang-display');
-            if (mobBtn) mobBtn.textContent = currentLang === 'en' ? 'EN/தமிழ்' : 'தமிழ்/EN';
-        }
-
-        function updatePageLanguage() {
-            const elements = document.querySelectorAll('[data-en]');
-
-            // Set HTML lang attribute
-            document.documentElement.setAttribute('lang', currentLang);
-
-            // Toggle Tamil mode class for CSS overrides
-            if (currentLang === 'ta') {
-                document.body.classList.add('tamil-mode');
-            } else {
-                document.body.classList.remove('tamil-mode');
-            }
-
-            elements.forEach(el => {
-                // Add fade effect for smoother transition
-                el.style.opacity = '0.5';
-                setTimeout(() => {
-                    if (currentLang === 'ta' && el.dataset.ta) {
-                        // Use innerHTML to support <br> tags in Tamil text
-                        el.innerHTML = el.dataset.ta;
-                    } else {
-                        el.textContent = el.dataset.en;
-                    }
-                    el.style.opacity = '1';
-                }, 100);
-            });
-        }
-        // Video Loading Polish
-        const heroVideo = document.getElementById('hero-video-bg');
-        if (heroVideo) {
-            heroVideo.addEventListener('play', () => heroVideo.classList.add('loaded'));
-            // Fallback for cached video or pre-playing ones
-            if (!heroVideo.paused) {
-                heroVideo.classList.add('loaded');
-            }
-            // Mobile compatibility: try to play if state is stuck
-            document.addEventListener('touchstart', () => {
-                if (heroVideo.paused) heroVideo.play();
-            }, { once: true });
-        }
-    </script>
-</body>
-
-</html>
+</script>
+{% endblock %}

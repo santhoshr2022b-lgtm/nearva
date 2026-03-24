@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Nearva{% endblock %}
+
+{% block head %}
+<style>
+    .custom-file-upload {
+        display: inline-block;
+        cursor: pointer;
+    }
+</style>
+<script src="{{ url_for('static', path='js/categories.js') }}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen pt-32 pb-20">
+    <main class="max-w-md mx-auto px-6 w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-black text-gray-900" data-en="Edit Profile" data-ta="சுயவிவரம்">Edit Profile</h1>
+            <button onclick="logout()"
+                class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl text-xs font-bold hover:bg-red-100 transition-all active:scale-95 border border-red-100 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                <span data-en="Logout" data-ta="வெளியேறு">Logout</span>
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 animate-fade-in">
+            <!-- Profile Image Section -->
+            <div class="flex flex-col items-center mb-8">
+                <div class="relative w-32 h-32 mb-4">
+                    <img id="profile-img-preview" src="" alt="Profile"
+                        class="w-full h-full rounded-full object-cover border-4 border-gray-100 shadow-md">
+                    <div id="image-loading"
+                        class="absolute inset-0 bg-black/50 rounded-full hidden flex items-center justify-center">
+                        <div class="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </div>
+                <!-- Upload controls -->
+                <div class="flex gap-2">
+                    <button onclick="document.getElementById('image-upload').click()"
+                        class="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-100 transition shadow-sm border border-blue-200"
+                        data-en="Change Picture" data-ta="படம் மாற்றவும்">
+                        Change Picture
+                    </button>
+                    <input type="file" id="image-upload" accept="image/jpeg, image/png, image/webp" class="hidden">
+                </div>
+                <p class="text-xs text-gray-400 mt-2 text-center" data-en="Max 2MB. JPG, PNG, WEBP only."
+                    data-ta="அதிகபட்சம் 2MB. JPG, PNG, WEBP மட்டும்.">Max 2MB. JPG, PNG, WEBP only.</p>
+                <div id="image-error" class="text-xs text-red-500 mt-1 hidden font-semibold"></div>
+            </div>
+
+            <form id="profile-form" class="space-y-5">
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5"
+                        data-en="Full Name" data-ta="முழு பெயர்">Full Name</label>
+                    <input type="text" id="name" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition text-gray-800 font-semibold font-inter">
+                </div>
+
+                <!-- Phone (Read Only) -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5"
+                        data-en="Phone Number" data-ta="தொலைபேசி எண்">Phone Number</label>
+                    <div class="relative group">
+                        <input type="tel" id="phone" readonly
+                            class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-2xl outline-none transition text-gray-400 font-semibold cursor-not-allowed select-none font-inter">
+                        <div
+                            class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span
+                                class="text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white px-2 py-1 rounded-md shadow-sm border border-gray-100"
+                                data-en="Locked" data-ta="பூட்டப்பட்டது">Locked</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Category -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5"
+                        data-en="Service Category" data-ta="சேவை வகை">Service Category</label>
+                    <div
+                        class="relative flex items-center bg-gray-100 border border-gray-100 rounded-2xl px-4 py-3 cursor-not-allowed">
+                        <select id="service" required disabled
+                            class="w-full text-gray-400 font-semibold font-inter appearance-none outline-none bg-transparent cursor-not-allowed">
+                            <option value="" disabled>Choose expertise</option>
+                            <!-- Dynamic categories injected via JS -->
+                        </select>
+                        <span class="absolute right-4 text-gray-400 pointer-events-none">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </span>
+                        <div class="absolute inset-0 z-10"></div>
+                    </div>
+                </div>
+                <script>
+                    (function () {
+                        const select = document.getElementById('service');
+                        if (select && typeof NEARVA_CATEGORIES !== 'undefined') {
+                            NEARVA_CATEGORIES.forEach(cat => {
+                                const opt = document.createElement('option');
+                                opt.value = cat.name;
+                                opt.textContent = cat.name;
+                                select.appendChild(opt);
+                            });
+                            // Add Others as fallback for legacy accounts
+                            const othersOpt = document.createElement('option');
+                            othersOpt.value = "Others";
+                            othersOpt.textContent = "Others / Not Listed";
+                            select.appendChild(othersOpt);
+                        }
+                    })();
+                </script>
+
+                <!-- Experience -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 uppercase tracking-widest ml-1 mb-1.5"
+                        data-en="Years Experience" data-ta="ஆண்டு அனுபவம்">Years Experience</label>
+                    <input type="number" id="experience" min="0" required
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition text-gray-800 font-semibold font-inter">
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" id="save-btn"
+                        class="w-full py-4 rounded-[1.5rem] text-lg font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-xl hover:shadow-blue-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]">
+                        <span data-en="Save Changes" data-ta="சேமிக்கவும்">Save Changes</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toast"
+    class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm p-4 bg-green-50 text-green-800 border-l-4 border-green-500 rounded-lg shadow-xl translate-y-32 transition-transform duration-300 flex items-center gap-3 z-50">
+    <span class="text-xl">✅</span>
+    <div class="flex-1 font-medium text-sm" data-en="Profile updated successfully"
+        data-ta="சுயவிவரம் வெற்றிகரமாக புதுப்பிக்கப்பட்டது">Profile updated successfully</div>
+</div>
+
+<div id="error-toast"
+    class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-sm p-4 bg-red-50 text-red-800 border-l-4 border-red-500 rounded-lg shadow-xl translate-y-32 transition-transform duration-300 flex items-center gap-3 z-50">
+    <span class="text-xl">⚠️</span>
+    <div id="error-msg" class="flex-1 font-medium text-sm">Update failed</div>
+</div>
+
+<!-- Cropper Modal -->
+<div id="cropper-modal"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-fade-in">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-900" data-en="Crop Profile Picture"
+                data-ta="சுயவிவரப் படத்தை செதுக்கவும்">Crop Profile Picture</h3>
+            <button onclick="closeCropper()" class="text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <div class="aspect-square w-full bg-gray-100 rounded-xl overflow-hidden">
+                <img id="cropper-image" src="" class="max-w-full">
+            </div>
+        </div>
+        <div class="p-6 bg-gray-50 flex gap-3">
+            <button onclick="closeCropper()"
+                class="flex-1 py-3 px-4 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl transition hover:bg-gray-100"
+                data-en="Cancel" data-ta="ரத்துசெய்">Cancel</button>
+            <button onclick="applyCrop()"
+                class="flex-1 py-3 px-4 bg-blue-600 text-white font-bold rounded-xl transition hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+                data-en="Crop & Save" data-ta="செதுக்கி சேமிக்கவும்">Crop & Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const workerId = localStorage.getItem('nearva_worker_id');
+    if (!workerId) window.location.href = '/worker/login';
+
+    let currentProfilePhotoUrl = '';
+
+    async function logout() {
+        localStorage.clear();
+        window.location.href = '/worker/login';
+    }
+
+    function showToast(id) {
+        const toastElement = document.getElementById(id);
+        if (!toastElement) return;
+        toastElement.classList.remove('translate-y-32');
+        setTimeout(() => {
+            toastElement.classList.add('translate-y-32');
+        }, 3000);
+    }
+
+    function showError(msg) {
+        const errorMsg = document.getElementById('error-msg');
+        if (errorMsg) errorMsg.textContent = msg;
+        showToast('error-toast');
+    }
+
+    async function loadProfile() {
+        try {
+            const res = await fetch(`/api/worker/profile/${workerId}`);
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                const worker = data.worker;
+                document.getElementById('name').value = worker.name || '';
+                document.getElementById('phone').value = worker.phone || '';
+                document.getElementById('service').value = worker.service || 'Others';
+                document.getElementById('experience').value = worker.experience || 0;
+
+                if (worker.profile_photo) {
+                    currentProfilePhotoUrl = worker.profile_photo;
+                    document.getElementById('profile-img-preview').src = worker.profile_photo;
+                } else {
+                    document.getElementById('profile-img-preview').src = `https://ui-avatars.com/api/?name=${worker.name.replace(' ', '+')}&background=random&color=fff`;
+                }
+            }
+        } catch (err) { console.error(err); }
+    }
+
+    let cropper;
+    const cropperModal = document.getElementById('cropper-modal');
+    const cropperImage = document.getElementById('cropper-image');
+
+    function closeCropper() {
+        cropperModal.classList.add('hidden');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('image-upload').value = '';
+    }
+
+    async function applyCrop() {
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 500,
+            height: 500
+        });
+
+        canvas.toBlob(async (blob) => {
+            closeCropper();
+            document.getElementById('image-loading').classList.remove('hidden');
+
+            try {
+                const sigRes = await fetch('/api/cloudinary/signature');
+                const sigData = await sigRes.json();
+
+                const formData = new FormData();
+                formData.append('file', blob);
+                formData.append('api_key', sigData.api_key);
+                formData.append('timestamp', sigData.timestamp);
+                formData.append('signature', sigData.signature);
+                formData.append('folder', sigData.folder);
+
+                const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const uploadData = await uploadRes.json();
+                if (uploadData.secure_url) {
+                    let optimizedUrl = uploadData.secure_url.replace('/upload/', '/upload/w_300,h_300,c_fill,g_face,q_auto,f_webp/');
+                    currentProfilePhotoUrl = optimizedUrl;
+                    document.getElementById('profile-img-preview').src = optimizedUrl;
+                }
+            } catch (err) {
+                showError("Upload failed.");
+            } finally {
+                document.getElementById('image-loading').classList.add('hidden');
+            }
+        }, 'image/jpeg', 0.9);
+    }
+
+    document.getElementById('image-upload').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            cropperImage.src = event.target.result;
+            cropperModal.classList.remove('hidden');
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 1,
+                viewMode: 2,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('save-btn');
+        btn.disabled = true;
+        btn.innerHTML = `<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Saving...`;
+
+        const formData = new FormData();
+        formData.append('id', workerId);
+        formData.append('name', document.getElementById('name').value);
+        formData.append('service', document.getElementById('service').value);
+        formData.append('experience', document.getElementById('experience').value);
+
+        if (currentProfilePhotoUrl) {
+            formData.append('profile_photo', currentProfilePhotoUrl);
+        }
+
+        try {
+            const res = await fetch('/api/worker/profile', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            if (data.status === 'success') {
+                showToast('toast');
+                localStorage.setItem('nearva_worker_name', document.getElementById('name').value);
+            } else {
+                showError(data.message || "Failed to update profile.");
+            }
+        } catch (err) {
+            showError("Network error.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<span>Save Changes</span>`;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+{% endblock %}

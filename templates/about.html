@@ -3,8 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="google-site-verification" content="DxkaThy1RH8UMu7R3Zp9yNXSUtQg4CslIsUYAXuL0lA" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us | Nearva</title>
+    <title>Founders of Nearva – Santhosh R, Vignesh N, Vishal G</title>
+    <meta name="description"
+        content="Nearva is a trusted local services platform founded by Santhosh R, Vignesh N, and Vishal G to connect users with verified workers and services.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}?v=9.1">
@@ -22,16 +25,16 @@
     <!-- Simple Header -->
     <nav class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="/" class="flex items-center">
+            <a href="/" class="flex items-center group transition-all duration-300">
                 <img src="{{ url_for('static', path='images/nearva_logo.png') }}?v={{ range(1, 10000) | random }}"
-                    class="h-10 md:h-12 w-auto transition-transform hover:scale-105 object-contain" alt="Nearva Logo">
+                    class="h-10 md:h-12 w-auto transition-transform group-hover:scale-105 active:scale-95 object-contain" alt="Nearva Logo">
             </a>
             <div class="flex items-center gap-4">
                 <button onclick="toggleLanguage()" id="lang-display"
-                    class="text-sm font-bold text-blue-600 border border-blue-100 px-3 py-1 rounded-lg hover:bg-blue-50 transition-all">
+                    class="text-sm font-bold text-blue-600 border border-blue-100 px-3 py-1 rounded-lg hover:bg-blue-50 active:scale-95 transition-all">
                     EN | தமிழ்
                 </button>
-                <a href="/" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition"
+                <a href="/" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-all active:scale-95"
                     data-en="Back to Home" data-ta="முகப்பிற்கு">Back to Home</a>
             </div>
         </div>
@@ -82,14 +85,85 @@
             </p>
 
             <div class="mt-10 pt-10 border-t border-gray-100">
-                <h3 class="text-lg font-bold text-gray-900 mb-4" data-en="Founded by" data-ta="நிறுவியவர்கள்">Founded by
-                </h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                        <p class="font-bold text-gray-900" data-en="Santhosh R" data-ta="சந்தோஷ் ஆர்">Santhosh R</p>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-en="Founders of Nearva"
+                    data-ta="நேர்வாவின் நிறுவனர்கள்">Founders of Nearva</h2>
+
+                <div class="space-y-8">
+                    <!-- Santhosh R -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold text-blue-600 mb-2" data-en="Santhosh R – Co-Founder"
+                            data-ta="சந்தோஷ் ஆர் – இணை நிறுவனர்">Santhosh R – Co-Founder</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li data-en="Website Design (UI/UX)" data-ta="வலைதள வடிவமைப்பு (UI/UX)">Website Design
+                                (UI/UX)</li>
+                            <li data-en="Product Presentation" data-ta="தயாரிப்பு விளக்கக்காட்சி">Product Presentation
+                            </li>
+                            <li data-en="Strategy & Product Vision" data-ta="வியூகம் மற்றும் தயாரிப்பு பார்வை">Strategy
+                                & Product Vision</li>
+                        </ul>
                     </div>
-                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                        <p class="font-bold text-gray-900" data-en="Vignesh N" data-ta="விக்னேஷ் என்">Vignesh N</p>
+
+                    <!-- Vignesh N -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold text-blue-600 mb-2" data-en="Vignesh N – Co-Founder"
+                            data-ta="விக்னேஷ் என் – இணை நிறுவனர்">Vignesh N – Co-Founder</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li data-en="Backend Ideas" data-ta="பின்னணித் திட்டங்கள்">Backend Ideas</li>
+                            <li data-en="Backend Connection & System Setup"
+                                data-ta="பின்னணி இணைப்பு மற்றும் கணினி அமைப்பு">Backend Connection & System Setup</li>
+                            <li data-en="User & Worker Growth Planning"
+                                data-ta="பயனர் மற்றும் பணியாளர் வளர்ச்சித் திட்டமிடல்">User & Worker Growth Planning
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Vishal G -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <h3 class="text-xl font-bold text-blue-600 mb-2" data-en="Vishal G – Co-Founder"
+                            data-ta="விஷால் ஜி – இணை நிறுவனர்">Vishal G – Co-Founder</h3>
+                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                            <li data-en="Future AI Integration" data-ta="AI ஒருங்கினைப்பு">FutureAI Integration</li>
+                            <li data-en="System Improvement" data-ta="கணினி மேம்பாடு">System Improvement</li>
+                            <li data-en="Advanced Technical Support" data-ta="மேம்பட்ட தொழில்நுட்ப ஆதரவு">Advanced
+                                Technical Support</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Ambassadors Section -->
+            <div id="ambassador-section" class="mt-12 pt-10 border-t border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2" data-en="Nearva Community Ambassadors" data-ta="நியார்வா சமூக தூதர்கள்">Nearva Community Ambassadors</h2>
+                <p class="text-gray-500 mb-8" data-en="Trusted community members helping grow Nearva locally." data-ta="உள்ளூர் சமூக உறுப்பினர்கள் நேர்வாவை தங்களின் பகுதியில் வளர்க்க உதவுகிறார்கள்.">Trusted community members helping grow Nearva locally.</p>
+
+                <div id="ambassadors-container" class="space-y-6">
+                    <div id="amb-loader" class="flex justify-center py-8">
+                       <div class="w-8 h-8 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Official Contact Section -->
+            <div class="mt-12 pt-10 border-t border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-en="Official Contact"
+                    data-ta="அதிகாரப்பூர்வ தொடர்பு">Official Contact</h2>
+                <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">📧</span>
+                        <a href="mailto:teamnearva@gmail.com"
+                            class="text-blue-600 font-bold hover:underline">teamnearva@gmail.com</a>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📱</span>
+                            <a href="https://whatsapp.com/channel/0029VbCJZVq9WtBxqNP44R3E" target="_blank"
+                                class="text-green-600 font-bold hover:underline" data-en="WhatsApp Channel"
+                                data-ta="வாட்ஸ்அப் சேனல்">WhatsApp Channel</a>
+                        </div>
+                        <p class="text-sm text-gray-600 ml-9"
+                            data-en="Follow the Nearva – Trusted Local Services channel on WhatsApp."
+                            data-ta="வாட்ஸ்அப்பில் நேர்வா – நம்பகமான உள்ளூர் சேவைகள் சேனலைப் பின்தொடரவும்.">Follow the
+                            Nearva – Trusted Local Services channel on WhatsApp.</p>
                     </div>
                 </div>
             </div>
@@ -114,7 +188,7 @@
                 <!-- Mobile Toggle -->
                 <div class="md:hidden w-full flex flex-col items-center">
                     <button onclick="toggleFooterLinks()" id="footer-toggle-btn"
-                        class="text-sm font-medium text-blue-600 bg-white px-6 py-2 rounded-full shadow-sm border border-gray-100 hover:shadow-md transition-all">
+                        class="text-sm font-medium text-blue-600 bg-white px-6 py-2 rounded-full shadow-sm border border-gray-100 hover:shadow-md active:scale-95 transition-all duration-300">
                         More Info
                     </button>
 
@@ -207,6 +281,122 @@
                 }
             });
         }
+
+        // Fetch and show ambassadors
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/ambassadors');
+                const data = await res.json();
+                const container = document.getElementById('ambassadors-container');
+                const section = document.getElementById('ambassador-section');
+                document.getElementById('amb-loader')?.remove();
+                
+                if (data && data.length > 0) {
+                    data.forEach(amb => {
+                        const card = document.createElement('div');
+                        card.className = 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden';
+                        
+                        let workersHtml = '';
+                        if (amb.workers && amb.workers.length > 0) {
+                            workersHtml = `
+                                <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm mt-4">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-gray-50/80 text-gray-500 uppercase font-bold text-[10px] tracking-wider border-b border-gray-200">
+                                            <tr>
+                                                <th class="px-4 py-3.5">Worker Name</th>
+                                                <th class="px-4 py-3.5">Service</th>
+                                                <th class="px-4 py-3.5">Location</th>
+                                                <th class="px-4 py-3.5">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            ${amb.workers.map((w, idx) => {
+                                                const bgClass = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/30';
+                                                const isOnline = w.is_online === true || w.is_online === 'true';
+                                                const statusColor = isOnline ? 'bg-green-100/50 text-green-700 border-green-200' : 'bg-gray-100/50 text-gray-600 border-gray-200';
+                                                const statusText = isOnline ? 'Online' : 'Offline';
+                                                const statusDot = isOnline ? 'bg-green-500' : 'bg-gray-400';
+                                                
+                                                return `
+                                                <tr class="${bgClass} hover:bg-blue-50/20 transition-colors group">
+                                                    <td class="px-4 py-3.5 font-bold text-gray-900">
+                                                        <div class="flex items-center gap-2.5">
+                                                            <div class="w-7 h-7 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-[11px] shrink-0 border border-blue-100">${w.name.charAt(0)}</div>
+                                                            ${w.name}
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-4 py-3.5 font-semibold text-gray-600">${w.service}</td>
+                                                    <td class="px-4 py-3.5 text-gray-500">
+                                                        <div class="flex items-center gap-1"><span class="text-gray-300">📍</span> ${w.area || '-'}</div>
+                                                    </td>
+                                                    <td class="px-4 py-3.5">
+                                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusColor}">
+                                                            <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span>
+                                                            ${statusText}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                        } else {
+                            workersHtml = `
+                                <div class="mt-4 p-8 bg-gray-50/50 rounded-xl border border-dashed border-gray-200 text-center">
+                                    <p class="text-sm font-semibold text-gray-400">No workers added under this ambassador yet.</p>
+                                </div>
+                            `;
+                        }
+
+                        card.innerHTML = `
+                            <details class="group [&_summary::-webkit-details-marker]:hidden">
+                                <summary class="p-6 cursor-pointer list-none flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50/50 transition-colors">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-14 h-14 bg-gradient-to-br from-blue-50 to-[#eff6ff] rounded-2xl flex items-center justify-center text-blue-600 font-bold text-xl flex-shrink-0 border border-blue-100 group-hover:scale-105 transition-transform duration-300 shadow-sm">
+                                            ${amb.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-900 text-lg flex flex-wrap items-center gap-2">
+                                                ${amb.name} 
+                                                <span class="text-[10px] bg-blue-100/50 text-blue-700 px-2 py-0.5 rounded-sm uppercase tracking-wider font-black border border-blue-200/50">Community Ambassador</span>
+                                            </h4>
+                                            <div class="flex items-center gap-1.5 text-sm font-semibold text-gray-500 mt-1.5">
+                                                <span class="text-gray-400">📍</span> <span class="truncate">${amb.area}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-blue-500 bg-blue-50 p-2 rounded-full border border-blue-100 group-hover:bg-blue-100 transition-colors">
+                                        <svg class="w-5 h-5 transform transition-transform duration-300 group-open:-rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </summary>
+                                
+                                <div class="px-6 pb-6 border-t border-gray-100 bg-white">
+                                    <div class="pt-6">
+                                        <div class="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                            <h5 class="text-[15px] font-bold text-gray-900 tracking-tight">Workers Added by ${amb.name}</h5>
+                                            <span class="inline-flex items-center gap-1 text-[10px] bg-green-50 text-green-700 px-2.5 py-1 rounded-full uppercase tracking-wider font-bold border border-green-100">
+                                                <span class="text-green-500">✓</span> Verified under Ambassador: ${amb.name.split(' ')[0]}
+                                            </span>
+                                        </div>
+                                        ${workersHtml}
+                                    </div>
+                                </div>
+                            </details>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    if(section) section.style.display = 'none';
+                }
+            } catch (e) {
+                const section = document.getElementById('ambassador-section');
+                if (section) section.style.display = 'none';
+            }
+        });
     </script>
 
 </body>
