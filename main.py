@@ -101,7 +101,7 @@ async def add_cache_control_header(request: Request, call_next):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 @app.get("/api/workers")
 async def get_workers(category: str = "All", lat: float = None, lng: float = None):
@@ -169,7 +169,7 @@ async def privacy_page(request: Request):
 
 @app.get("/terms", response_class=HTMLResponse)
 async def terms_page(request: Request):
-    return templates.TemplateResponse("terms.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="terms.html")
 
 
 # --- API Endpoints ---
@@ -350,21 +350,21 @@ async def login_redirect():
 async def worker_login_page(request: Request):
     if request.session.get("worker_id"):
         return RedirectResponse(url="/worker/dashboard")
-    return templates.TemplateResponse("worker_login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="worker_login.html")
 
 @app.get("/worker/dashboard", response_class=HTMLResponse)
 async def worker_dashboard_page(request: Request):
     worker_id = request.session.get("worker_id")
     if not worker_id:
         return RedirectResponse(url="/worker/login")
-    return templates.TemplateResponse("worker_dashboard.html", {"request": request, "worker_id": worker_id})
+    return templates.TemplateResponse(request=request, name="worker_dashboard.html", context={"worker_id": worker_id})
 
 @app.get("/worker/profile", response_class=HTMLResponse)
 async def worker_profile_page(request: Request):
     worker_id = request.session.get("worker_id")
     if not worker_id:
         return RedirectResponse(url="/worker/login")
-    return templates.TemplateResponse("worker_profile.html", {"request": request, "worker_id": worker_id})
+    return templates.TemplateResponse(request=request, name="worker_profile.html", context={"worker_id": worker_id})
 
 @app.get("/api/cloudinary/signature")
 async def get_cloudinary_signature(request: Request):
